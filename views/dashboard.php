@@ -60,37 +60,8 @@ try {
     </style>
 </head>
 <body class="flex h-screen overflow-hidden text-gray-800">
-    <div id="sidebar" class="w-64 bg-white border-r border-gray-100 flex flex-col h-screen flex-shrink-0 whitespace-nowrap overflow-hidden">
-
-        <div class="p-6 border-b border-gray-50">
-            <div class="text-xl font-bold text-primary mb-6 tracking-wide">Artisanal POS</div>
-            <div class="flex items-center space-x-3 mb-4">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50" class="w-10 h-10 rounded-full" alt="User">
-                <div>
-                    <p class="text-sm font-bold text-gray-800"><?php echo htmlspecialchars($_SESSION['nombre']); ?></p>
-                    <p class="text-xs text-gray-500 capitalize"><?php echo htmlspecialchars($_SESSION['rol']); ?></p>
-                </div>
-            </div>
-        </div>
-
-        <nav class="flex-1 p-4 space-y-2">
-            <?php if ($_SESSION['rol'] === 'administrador'): ?>
-                <a href="/views/productos.php" class="block p-3 rounded-xl transition-all duration-200 hover:bg-orange-50 hover:text-[#BC5F40] active:scale-95">Productos</a>
-                <a href="/views/inventario.php" class="block p-3 rounded-xl transition-all duration-200 hover:bg-orange-50 hover:text-[#BC5F40] active:scale-95">Inventario</a>
-                
-                <button onclick="document.getElementById('modal-avisos').classList.remove('hidden')" 
-                        class="w-full text-left p-3 rounded-xl transition-all duration-200 hover:bg-orange-50 hover:text-[#BC5F40] active:scale-95">
-                    Crear Aviso
-                </button>
-            <?php endif; ?>
-        </nav>
-
-        <div class="p-4 border-t border-gray-100 space-y-2">
-            <a href="#" class="block p-3 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-800 active:scale-95">Configuración</a>
-            <a href="#" class="block p-3 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-800 active:scale-95">Soporte</a>
-            <a href="/logout.php" class="flex items-center p-3 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-700 active:scale-95 font-semibold mt-2">Cerrar Sesión</a>
-        </div>
-    </div>
+    
+    <?php include __DIR__ . '/../utilities/sidebar.php'; ?>
 
     <div class="flex-1 flex flex-col overflow-y-auto">
         <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0">

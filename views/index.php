@@ -18,107 +18,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear_aviso'])) {
 ?>
 <!DOCTYPE html>
 <html lang="es">
-<head> 
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artisanal POS - Mapa de Mesas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
+    <head> 
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Artisanal POS - Mapa de Mesas</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/css/style.css">
 
-    <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #FBF9F6; }
-        .bg-primary { background-color: #BC5F40; }
-        .text-primary { color: #BC5F40; }
-        /* CORREGIDO: Se cambió 'S' por '5' para que el color hexadecimal sea válido (#DAA520) */
-        .bg-secondary { background-color: #DAA520; }
-        .border-secondary { border-color: #DAA520; }
-    </style>
-</head>
-<body class="flex h-screen overflow-hidden text-gray-800">
-    
-    <div id="sidebar" class="w-64 bg-white border-r border-gray-100 flex flex-col h-screen flex-shrink-0 whitespace-nowrap overflow-hidden">
-    
-        <div class="p-6 border-b border-gray-50">
-            <div class="text-xl font-bold text-primary mb-6 tracking-wide" id="brand-name">Artisanal POS</div>
-            
-            <div class="flex items-center space-x-3 mb-4">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50" class="w-10 h-10 rounded-full" alt="User">
-                <div id="user-info">
-                    <p class="text-sm font-bold text-gray-800"><?php echo $_SESSION['nombre']; ?></p>
-                    <p class="text-xs text-gray-500 capitalize"><?php echo $_SESSION['rol']; ?></p>
-                </div>
-            </div>
-        </div>
-        <nav class="flex-1 p-4 space-y-2">
-            <?php if ($_SESSION['rol'] === 'administrador'): ?>
-                <a href="/views/productos.php" class="block p-3 rounded-xl transition-all duration-200 hover:bg-orange-50 hover:text-[#BC5F40] active:scale-95">Productos</a>
-                <a href="/views/inventario.php" class="block p-3 rounded-xl transition-all duration-200 hover:bg-orange-50 hover:text-[#BC5F40] active:scale-95">Inventario</a>
-                
-                <button onclick="document.getElementById('modal-avisos').classList.remove('hidden')" 
-                        class="w-full text-left p-3 rounded-xl transition-all duration-200 hover:bg-orange-50 hover:text-[#BC5F40] active:scale-95">
-                    Crear Aviso
+        <style>
+            body { font-family: 'Montserrat', sans-serif; background-color: #FBF9F6; }
+            .bg-primary { background-color: #BC5F40; }
+            .text-primary { color: #BC5F40; }
+            /* CORREGIDO: Se cambió 'S' por '5' para que el color hexadecimal sea válido (#DAA520) */
+            .bg-secondary { background-color: #DAA520; }
+            .border-secondary { border-color: #DAA520; }
+        </style>
+    </head>
+    <body class="flex h-screen overflow-hidden text-gray-800">
+        
+        <?php include __DIR__ . '/../Utilities/sidebar.php'; ?>
+        
+        <div class="flex-1 flex flex-col">
+            <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10">
+                <button id="toggle-sidebar" class="mr-4 p-3 text-gray-500 hover:bg-gray-100 rounded-lg flex items-center justify-center transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </button>
-            <?php endif; ?>
-        </nav>
 
-        <div class="p-4 border-t border-gray-100 space-y-2">
-            <a href="#" class="block p-3 rounded-xl text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-800 active:scale-95">Configuración</a>
-            <a href="#" class="block p-3 rounded-xl text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-800 active:scale-95">Soporte</a>
-            
-            <a href="/logout.php" class="flex items-center p-3 rounded-xl text-red-500 transition-all duration-200 hover:bg-red-50 hover:text-red-700 active:scale-95 font-semibold mt-2">
-                Cerrar Sesión
-            </a>
-        </div>
-    </div>
+                <nav class="flex items-center space-x-6 font-medium text-gray-500 h-full">
+                </nav>
 
-    <div class="flex-1 flex flex-col">
-        <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10">
-            <button id="toggle-sidebar" class="mr-4 p-3 text-gray-500 hover:bg-gray-100 rounded-lg flex items-center justify-center transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-
-            <nav class="flex items-center space-x-6 font-medium text-gray-500 h-full">
-            </nav>
-
-            <nav class="flex items-center space-x-6 font-medium text-gray-500 h-full">
-                <a href="dashboard.php" class="hover:text-primary transition py-2">Dashboard</a>
+                <nav class="flex items-center space-x-6 font-medium text-gray-500 h-full">
+                    <a href="dashboard.php" class="hover:text-primary transition py-2">Dashboard</a>
+                    
+                    <a href="index.php" class="text-primary border-b-2 border-primary h-full flex items-center transition">
+                        Mesas
+                    </a>
+                    
+                </nav>
                 
-                <a href="index.php" class="text-primary border-b-2 border-primary h-full flex items-center transition">
-                    Mesas
-                </a>
-                
-            </nav>
-            
-            <div class="flex items-center space-x-4">
-                <input type="text" placeholder="Buscar Tabla..." class="bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none w-64">
-            </div>
-        </header>
+                <div class="flex items-center space-x-4">
+                    <input type="text" placeholder="Buscar Tabla..." class="bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none w-64">
+                </div>
+            </header>
 
-        <main class="flex-1 p-8 overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Comedor Principal</h1>
-                    <div class="flex space-x-4 text-xs font-medium text-gray-500 mt-1">
-                        <span class="flex items-center">
-                            <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span> 
-                            <span id="count-available" class="count-margin">0</span> Disponibles
-                        </span>
-                        <span class="flex items-center">
-                            <span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span> 
-                            <span id="count-occupied" class="count-margin">8</span> Ocupadas
-                        </span>
+            <main class="flex-1 p-8 overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Comedor Principal</h1>
+                        <div class="flex space-x-4 text-xs font-medium text-gray-500 mt-1">
+                            <span class="flex items-center">
+                                <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span> 
+                                <span id="count-available" class="count-margin">0</span> Disponibles
+                            </span>
+                            <span class="flex items-center">
+                                <span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span> 
+                                <span id="count-occupied" class="count-margin">8</span> Ocupadas
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="grid-mesas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            </div>
-        </main>
-    </div>
+                <div id="grid-mesas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                </div>
+            </main>
+        </div>
 
         <!-- Modal de Avisos -->
         <div id="modal-avisos" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
