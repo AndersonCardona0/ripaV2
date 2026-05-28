@@ -1,0 +1,28 @@
+
+.mesa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.space-between-items {
+    margin-right: 15px; 
+}
+
+.count-margin {
+    margin-right: 8px; 
+}
+
+#modal-resumen-items::-webkit-scrollbar {
+    width: 6px;
+}
+#modal-resumen-items::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+#modal-resumen-items::-webkit-scrollbar-thumb {
+    background: #BC5F40;
+    border-radius: 10px;
+}

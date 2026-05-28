@@ -1,0 +1,15 @@
+# Seguridad: Credenciales y secretos
+config/conexion.php
+
+# Archivos del editos
+.vscode/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs y archivos temporales
+logs/
+temp/
+
+#
