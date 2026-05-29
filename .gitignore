@@ -1,5 +1,5 @@
 # Seguridad: Credenciales y secretos
-config/.env
+/.env
 
 # Archivos del editos
 .vscode/
