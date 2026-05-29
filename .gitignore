@@ -1,5 +1,5 @@
 # Seguridad: Credenciales y secretos
-config/conexion.php
+config/.env
 
 # Archivos del editos
 .vscode/
@@ -12,4 +12,3 @@ Thumbs.db
 logs/
 temp/
 
-#
