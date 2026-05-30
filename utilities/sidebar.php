@@ -1,7 +1,13 @@
 <?php
 $pagina_actual = basename($_SERVER['PHP_SELF']);
 ?>
-<div id="sidebar" class="w-64 bg-white border-r border-gray-100 flex flex-col h-screen flex-shrink-0 whitespace-nowrap overflow-hidden">
+
+<style>
+    .no-transition { transition: none !important; }
+</style>
+
+<div id="sidebar" class="w-0 w-64 transition-all duration-300 ease-in-out
+ overflow-hidden bg-white border-r border-gray-100 flex flex-col h-screen flex-shrink-0 whitespace-nowrap">
     
     <div class="p-6 border-b border-gray-50">
         <div class="text-xl font-bold text-[#BC5F40] mb-6 tracking-wide" id="brand-name">Artisanal POS</div>
@@ -36,3 +42,29 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
         <a href="/logout.php" class="flex items-center p-3 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-700 font-semibold mt-2 transition">Cerrar Sesión</a>
     </div>
 </div>
+
+<!-- <script>
+    (function() {
+        const sidebar = document.getElementById('sidebar');
+        const state = localStorage.getItem('sidebarState');
+        if (state === 'closed') {
+            sidebar.classList.remove('w-64');
+            sidebar.classList.add('w-0');
+        }
+    })();
+</script> -->
+
+<script>
+    (function() {
+        const sidebar = document.getElementById('sidebar');
+        
+        if (localStorage.getItem('sidebarState') === 'closed') {
+            sidebar.classList.remove('w-64');
+            sidebar.classList.add('w-0');
+        }
+
+        setTimeout(() => {
+            sidebar.classList.add('transition-all', 'duration-300', 'ease-in-out');
+        }, 50);
+    })();
+</script>

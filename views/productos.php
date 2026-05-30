@@ -20,9 +20,24 @@ verificarAutenticacion();
 
     <main class="flex-1 flex flex-col h-screen overflow-hidden">
         
-        <header class="flex items-center justify-center gap-8 py-6">
-            <a href="dashboard.php" class="text-gray-500 hover:text-[#BC5F40] font-medium transition">Dashboard</a>
-            <a href="mesas.php" class="text-gray-500 hover:text-[#BC5F40] font-medium transition">Mesas</a>
+        <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10">
+            <button id="toggle-sidebar" class="p-3 text-gray-500 hover:bg-gray-100 rounded-lg flex items-center justify-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <nav class="flex items-center space-x-8 font-medium text-gray-500 h-full">
+                <a href="dashboard.php" class="hover:text-[#BC5F40] transition h-full flex items-center border-b-2 border-transparent hover:border-[#BC5F40]">
+                    Dashboard
+                </a>
+                
+                <a href="mesas.php" class="hover:text-[#BC5F40] transition h-full flex items-center border-b-2 border-transparent hover:border-[#BC5F40]">
+                    Mesas
+                </a>
+            </nav>
+            
+            <div class="w-12"></div>
         </header>
 
         <div class="flex-1 px-10 overflow-y-auto">
@@ -75,6 +90,6 @@ verificarAutenticacion();
         </div>
     </div>
 
-    <script src="../js/productos.js"></script>
+    <script src="../js/productos.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
