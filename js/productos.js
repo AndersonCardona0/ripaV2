@@ -1,31 +1,3 @@
-let ws;
-
-function conectarWebSocket() {
-    // Nos conectamos al puerto 8080 del servidor local
-    const serverIp = window.location.hostname; // Esto hace que funcione tanto en localhost como en producción
-    ws = new WebSocket(`ws://${serverIp}:8080`);
-
-    ws.onopen = () => {
-        console.log("🔌 Conectado exitosamente al servidor de Avisos en Tiempo Real");
-    };
-
-    ws.onmessage = async (event) => {
-        console.log("📩 Mensaje recibido del servidor WebSocket:", event.data);
-        if (event.data === 'refrescar_avisos') {
-            // Reutilizamos tu excelente función sin alterar su lógica
-            await refrescarListaAvisos();
-        }
-    };
-
-    ws.onclose = () => {
-        console.warn("⚠️ Servidor WebSocket desconectado. Intentando reconexión en 5 segundos...");
-        setTimeout(conectarWebSocket, 5000); // Reconexión automática
-    };
-
-    ws.onerror = (error) => {
-        console.error("❌ Error en WebSocket:", error);
-    };
-}
 
 document.addEventListener('DOMContentLoaded', async () => {
 
@@ -36,48 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     cargarProductos(1);
     await refrescarListaAvisos();
 
-    const formAviso = document.getElementById('form-crear-aviso');
-    const modal = document.getElementById('modal-avisos');
-
-    if (formAviso) {
-        formAviso.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            console.log("Sistema de avisos: Evento submit detectado.");
-
-            const formData = new FormData(formAviso);
-
-            try {
-                console.log("Enviando datos al servidor...");
-                const response = await fetch('/controllers/api_guardar_aviso.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-                const data = await response.json();
-                console.log("DEBUG: Respuesta del servidor:", data);
-
-                if (data.status === 'success') {
-                    console.log("⚙️ Debug: Estado success...");
-                    alert(data.message);
-                    formAviso.reset();
-                    if (modal) modal.classList.add('hidden');
-                
-                    await refrescarListaAvisos(); 
-
-
-                } else {
-                    console.warn("⚠️ Debug: Estado no success..., respuesta: ", data);
-                    alert('Error: ' + data.message);
-                }
-            } catch (error) {
-                console.error('Error al conectar:', error);
-                alert('Hubo un problema al conectar con el servidor.');
-            }
-        });
-    }
-
+    
     const toggleButton = document.getElementById('toggle-sidebar');
     const sidebar = document.getElementById('sidebar');
 

@@ -91,5 +91,6 @@ verificarAutenticacion();
     </div>
 
     <script src="../js/productos.js?v=<?php echo time(); ?>"></script>
+    <?php include __DIR__ . '/../utilities/footer.php'; ?>
 </body>
 </html>

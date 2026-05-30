@@ -121,32 +121,6 @@ try {
         </main>
     </div>
 
-    <div id="modal-avisos" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Nuevo Aviso Operativo</h2>
-            <form id="form-crear-aviso" method="POST">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Título</label>
-                        <input type="text" name="titulo" required placeholder="Ej: Sin postres hoy" 
-                            class="w-full mt-1 p-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#BC5F40]">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Especificaciones</label>
-                        <textarea name="mensaje" required placeholder="Detalles..." 
-                                class="w-full mt-1 p-3 bg-gray-50 border border-gray-100 rounded-xl h-24 focus:outline-none focus:ring-2 focus:ring-[#BC5F40]"></textarea>
-                    </div>
-                </div>
-                <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="document.getElementById('modal-avisos').classList.add('hidden')"
-                            class="flex-1 p-3 rounded-xl bg-gray-100 text-gray-600 font-semibold hover:bg-gray-200">Cancelar</button>
-                    <button type="submit" name="crear_aviso" 
-                            class="flex-1 p-3 rounded-xl bg-[#BC5F40] text-white font-semibold hover:bg-amber-800">Publicar</button>
-                </div>
-            </form> 
-        </div>
-    </div>
-
     <div id="modal-confirm" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-sm shadow-2xl animate-in fade-in zoom-in duration-200">
             <h3 id="confirm-title" class="text-lg font-bold text-gray-800">¿Estás seguro?</h3>
