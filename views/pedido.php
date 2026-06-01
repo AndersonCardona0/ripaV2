@@ -21,31 +21,18 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
     </style>
 </head>
 <body class="flex h-screen overflow-hidden text-gray-800" data-mesa-id="<?php echo htmlspecialchars($mesa_activa); ?>">
+
     <div class="w-64 bg-white border-r border-gray-100 flex flex-col justify-between p-6">
         <div>
             <div class="text-xl font-bold text-primary mb-8 tracking-wide">Artisanal POS</div>
-            
             <div class="mb-6">
                 <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-3">Menú Rápido</span>
-                <button onclick="cambiarCategoria(1, this)" class="category-btn w-full bg-amber-100 text-amber-800 font-medium py-3 px-4 rounded-xl flex items-center mb-2 dynamic-active">
-                    <span class="mr-3">🍞</span> Panadería
-                </button>
-                <button onclick="cambiarCategoria(2, this)" class="category-btn w-full text-gray-500 hover:bg-gray-50 font-medium py-3 px-4 rounded-xl flex items-center mb-2">
-                    <span class="mr-3">🍰</span> Pastelería
-                </button>
-                <button onclick="cambiarCategoria(3, this)" class="category-btn w-full text-gray-500 hover:bg-gray-50 font-medium py-3 px-4 rounded-xl flex items-center mb-2">
-                    <span class="mr-3">☕</span> Cafetería
-                </button>
-                <button onclick="cambiarCategoria(4, this)" class="category-btn w-full text-gray-500 hover:bg-gray-50 font-medium py-3 px-4 rounded-xl flex items-center">
-                    <span class="mr-3">🥤</span> Bebidas Frías
-                </button>
+                <div id="contenedor-botones-categorias" class="space-y-2"></div>
             </div>
-            
             <button onclick="window.location.href='index.php'" class="w-full border border-gray-300 text-gray-600 font-semibold py-3 px-4 rounded-xl hover:bg-gray-50 transition">
-                ⬅️ Volver a Mesas
+                ⬅ Volver a Mesas
             </button>
         </div>
-        <div class="text-xs text-gray-400">Mesero Activo: Carlos M.</div>
     </div>
 
     <div class="flex-1 flex flex-col">
@@ -55,27 +42,24 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
         </header>
 
         <main class="flex-1 p-8 overflow-y-auto">
-            <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 overflow-y-auto overflow-x-hidden w-full max-w-full p-1">
+            <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 overflow-y-auto overflow-x-hidden w-full max-w-full p-1"></div>
         </main>
     </div>
 
     <div class="w-full md:w-96 bg-white border-l border-stone-200 p-6 flex flex-col h-screen sticky top-0">
-    
         <div class="flex justify-between items-center mb-6 flex-shrink-0">
             <h2 class="text-xl font-bold text-gray-800">Orden</h2>
             <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-lg">
-                T-<?php echo str_pad(isset($_GET['mesa']) ? intval($_GET['mesa']) : 0, 2, "0", STR_PAD_LEFT); ?>
+                T-<?php echo str_pad($mesa_activa, 2, "0", STR_PAD_LEFT); ?>
             </span>
         </div>
 
         <div id="carrito-items" class="flex-1 overflow-y-auto pr-1 space-y-2 mb-6 style-scrollbar">
-            
             <div id="carrito-vacio" class="text-center py-12 text-gray-400">
                 <span class="text-4xl block mb-2">🛒</span>
                 <p class="text-sm">Orden Vacía</p>
             </div>
-
-            </div>
+        </div>
 
         <div class="border-t border-stone-200 pt-4 flex-shrink-0 bg-white">
             <div class="flex justify-between text-sm text-gray-500 mb-2">
@@ -92,9 +76,7 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                 <span id="txt-total" class="text-2xl font-black text-gray-900">$0.00</span>
             </div>            
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador'): ?>
-            <button type="button" 
-                    onclick="openPaymentModal()" 
-                    class="w-full mb-3 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center transition shadow-lg shadow-green-700/20">
+            <button type="button" onclick="openPaymentModal()" class="w-full mb-3 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center transition shadow-lg shadow-green-700/20">
                 <span class="ml-2">Pagar Mesa</span>
             </button>
             <?php endif; ?>
@@ -102,13 +84,83 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                 <span>Guardar Pedido</span>
             </button>
         </div>
-</div>
+    </div>
+
+    <div id="modal-pago" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 max-h-[90vh]">
+            <div class="p-8 border-b md:border-b-0 md:border-r border-gray-100 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xl font-bold mb-6">Resumen de la Cuenta</h3>
+                    <div id="modal-resumen-items" class="space-y-4 mb-8 overflow-y-auto max-h-[40vh] pr-2"></div>
+                </div>
+                <div class="border-t border-dashed pt-4 space-y-2">
+                    <div class="flex justify-between text-gray-500"><span>Subtotal</span><span id="m-subtotal">$0.00</span></div>
+                    <div class="flex justify-between text-gray-500"><span>Impuesto (8%)</span><span id="m-impuesto">$0.00</span></div>
+                    <div class="flex justify-between font-bold text-lg text-gray-800"><span>Total</span><span id="m-total">$0.00</span></div>
+                </div>
+            </div>
+
+            <div class="p-8 bg-gray-50">
+                <h3 class="text-xl font-bold mb-6">Método de Pago</h3>
+                <div class="flex gap-2 mb-6">
+                    <button class="flex-1 py-3 bg-white border border-gray-200 rounded-xl font-medium">Efectivo</button>
+                    <button class="flex-1 py-3 bg-white border-2 border-[#BC5F40] text-[#BC5F40] rounded-xl font-bold">Tarjeta</button>
+                    <button class="flex-1 py-3 bg-white border border-gray-200 rounded-xl font-medium">Digital</button>
+                </div>
+                
+                <input type="text" placeholder="Ej. Juan Pérez" class="w-full p-3 rounded-xl border border-gray-200 mb-4">
+                <input type="text" placeholder="0000 0000 0000 0000" class="w-full p-3 rounded-xl border border-gray-200 mb-4">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <input type="text" placeholder="MM/AA" class="p-3 rounded-xl border border-gray-200">
+                    <input type="text" placeholder="***" class="p-3 rounded-xl border border-gray-200">
+                </div>
+
+                <button onclick="procesarPagoFinal()" class="w-full bg-[#BC5F40] text-white font-bold py-4 rounded-xl hover:bg-amber-800 transition shadow-lg">
+                    Finalizar Pago <span id="m-total-btn">$0.00</span>
+                </button>
+                <p class="text-[10px] text-gray-400 mt-4 text-center">Pago procesado de forma segura bajo estándares PCI-DSS.</p>
+            </div>
+        </div>
+    </div>
 
     <script>
         const mesaActiva = <?php echo $mesa_activa; ?>;
         let carrito = [];
+        let categoriaSeleccionadaId = null;
 
-        // 1. Cargar productos desde la API de forma dinámica
+        function cargarBotonesCategorias() {
+            fetch('../controllers/api_categorias.php')
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 'success' && res.data.length > 0) {
+                        const contenedor = document.getElementById('contenedor-botones-categorias');
+                        contenedor.innerHTML = '';
+
+                        res.data.forEach((cat, index) => {
+                            const esActiva = index === 0;
+                            if (esActiva && !categoriaSeleccionadaId) {
+                                categoriaSeleccionadaId = cat.id;
+                            }
+
+                            const clasesBoton = esActiva 
+                                ? 'category-btn w-full bg-amber-100 text-amber-800 font-medium py-3 px-4 rounded-xl flex items-center mb-2 dynamic-active'
+                                : 'category-btn w-full text-gray-500 hover:bg-gray-50 font-medium py-3 px-4 rounded-xl flex items-center mb-2';
+
+                            contenedor.innerHTML += `
+                                <button onclick="cambiarCategoria(${cat.id}, this)" class="${clasesBoton}">
+                                    ${cat.nombre}
+                                </button>
+                            `;
+                        });
+
+                        if (categoriaSeleccionadaId) {
+                            cargarProductos(categoriaSeleccionadaId);
+                        }
+                    }
+                })
+                .catch(err => console.error("Error al cargar categorías:", err));
+        }
+
         function cargarProductos(categoriaId) {
             fetch(`../controllers/api_productos.php?categoria=${categoriaId}`)
                 .then(res => res.json())
@@ -121,17 +173,14 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                             grid.innerHTML += `
                                 <div onclick="agregarAlCarrito(${prod.id}, '${prod.nombre}', ${prod.precio})" 
                                     class="w-full bg-white border border-stone-200 rounded-2xl p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition h-40 box-border">
-                                    
                                     <div class="w-full flex flex-col gap-y-1">
                                         <h3 class="font-bold text-gray-800 text-sm sm:text-base leading-snug line-clamp-2" title="${prod.nombre}">
                                             ${prod.nombre}
                                         </h3>
-                                        
                                         <span class="font-extrabold text-amber-700 text-sm sm:text-base mt-1">
                                             $${parseFloat(prod.precio).toFixed(2)}
                                         </span>
                                     </div>
-
                                     <div class="flex items-center justify-between text-xs text-gray-400 border-t border-stone-100 pt-2 w-full mt-auto">
                                         <span>Ver detalle</span>
                                         <span class="text-amber-500 font-bold bg-stone-50 px-2 py-1 rounded-lg border border-stone-100">🛒+</span>
@@ -142,7 +191,6 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                 });
         }
 
-        // 2. Manejo de pestañas/categorías
         function cambiarCategoria(id, boton) {
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.classList.remove('bg-amber-100', 'text-amber-800', 'font-medium');
@@ -152,7 +200,6 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
             cargarProductos(id);
         }
 
-        // 3. Agregar productos al carrito temporal
         function agregarAlCarrito(id, nombre, precio) {
             const existe = carrito.find(item => item.id === id);
             if (existe) {
@@ -163,7 +210,6 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
             actualizarInterfazCarrito();
         }
 
-        // 4. Pintar el carrito en el panel derecho con botones de control
         function actualizarInterfazCarrito() {
             const contenedor = document.getElementById('carrito-items');
             const vacio = document.getElementById('carrito-vacio');
@@ -171,7 +217,6 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
             if (carrito.length === 0) {
                 vacio.style.display = 'block';
                 document.querySelectorAll('#txt-subtotal, #txt-impuesto, #txt-total').forEach(el => el.innerText = '$0.00');
-                // Limpiamos cualquier fila residual
                 document.querySelectorAll('.cart-item-row').forEach(el => el.remove());
                 return;
             }
@@ -180,7 +225,6 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
             document.querySelectorAll('.cart-item-row').forEach(el => el.remove());
 
             let subtotal = 0;
-
             carrito.forEach(item => {
                 const itemSubtotal = item.precio * item.cantidad;
                 subtotal += itemSubtotal;
@@ -192,24 +236,18 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                         <span class="font-bold text-gray-800 block line-clamp-1">${item.nombre}</span>
                         <span class="text-xs text-gray-400">$${parseFloat(item.precio).toFixed(2)} x ${item.cantidad}</span>
                     </div>
-                    
                     <div class="flex items-center space-x-2 bg-white border border-gray-200 rounded-lg p-1 mr-2">
                         <button onclick="modificarCantidad(${item.id}, -1)" class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-stone-100 rounded-md font-bold text-sm transition">-</button>
                         <span class="font-semibold text-gray-800 px-1 min-w-[12px] text-center">${item.cantidad}</span>
                         <button onclick="modificarCantidad(${item.id}, 1)" class="w-6 h-6 flex items-center justify-center text-primary hover:bg-stone-100 rounded-md font-bold text-sm transition">+</button>
                     </div>
-                    
                     <div class="flex items-center space-x-3 min-w-[90px] justify-end">
                         <span class="font-bold text-gray-700">$${itemSubtotal.toFixed(2)}</span>
-                        <button onclick="eliminarProducto(${item.id})" class="text-red-400 hover:text-red-600 transition font-medium text-xs p-1" title="Eliminar del pedido">
-                            ❌
-                        </button>
-                    </div>
-                `;
+                        <button onclick="eliminarProducto(${item.id})" class="text-red-400 hover:text-red-600 transition font-medium text-xs p-1">❌</button>
+                    </div>`;
                 contenedor.appendChild(row);
             });
 
-            // Recalculamos los bloques de totales globales
             const impuesto = subtotal * 0.08;
             const total = subtotal + impuesto;
 
@@ -218,28 +256,22 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
             document.getElementById('txt-total').innerText = `$${total.toFixed(2)}`;
         }
 
-
-            function modificarCantidad(id, cambio) {
-                // Forzamos que ambos IDs sean tratados como números enteros
-                const item = carrito.find(p => parseInt(p.id) === parseInt(id));
-                
-                if (item) {
-                    item.cantidad += cambio;
-                    
-                    // Si llega a 0 o menos, lo removemos
-                    if (item.cantidad <= 0) {
-                        eliminarProducto(id);
-                        return; // Cortamos la ejecución aquí
-                    }
-                    
-                    actualizarInterfazCarrito();
+        function modificarCantidad(id, cambio) {
+            const item = carrito.find(p => parseInt(p.id) === parseInt(id));
+            if (item) {
+                item.cantidad += cambio;
+                if (item.cantidad <= 0) {
+                    eliminarProducto(id);
+                    return;
                 }
-            }
-
-            function eliminarProducto(id) {
-                carrito = carrito.filter(p => parseInt(p.id) !== parseInt(id));
                 actualizarInterfazCarrito();
             }
+        }
+
+        function eliminarProducto(id) {
+            carrito = carrito.filter(p => parseInt(p.id) !== parseInt(id));
+            actualizarInterfazCarrito();
+        }
 
         function enviarACocina() {
             if (carrito.length === 0) {
@@ -247,17 +279,10 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                 return;
             }
 
-            const datosPedido = {
-                mesa_id: mesaActiva,
-                items: carrito
-            };
-
             fetch('../controllers/guardar_pedido.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(datosPedido)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mesa_id: mesaActiva, items: carrito })
             })
             .then(res => res.json())
             .then(res => {
@@ -270,18 +295,15 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
             })
             .catch(err => {
                 console.error('Error en la petición:', err);
-                alert('Ocurrió un error de red al intentar enviar el pedido.');
+                alert('Ocurrió un error de red.');
             });
         }
-
-        cargarProductos(1);
 
         function verificarPedidoExistente() {
             fetch(`../controllers/api_obtener_pedido_mesa.php?mesa=${mesaActiva}`)
                 .then(res => res.json())
                 .then(res => {
                     if (res.status === 'success' && res.data.length > 0) {
-                        // Si la mesa ya tenía cosas, las metemos al carrito de JavaScript
                         carrito = res.data.map(item => ({
                             id: parseInt(item.id),
                             nombre: item.nombre,
@@ -294,46 +316,9 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                 .catch(err => console.error("Error cargando pedido previo:", err));
         }
 
-
-        cargarProductos(1);
+        cargarBotonesCategorias();
         verificarPedidoExistente();
     </script>
-    </script>
-        <div id="modal-pago" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 max-h-[90vh] flex flex-col">
-                <div class="p-8 border-b md:border-b-0 md:border-r border-gray-100">
-                    <h3 class="text-xl font-bold mb-6">Resumen de la Cuenta</h3>
-                    <div id="modal-resumen-items" class="space-y-4 mb-8 overflow-y-auto flex-1 max-h-[40vh] pr-2">
-                        </div>
-                    <div class="border-t border-dashed pt-4 space-y-2">
-                        <div class="flex justify-between text-gray-500"><span>Subtotal</span><span id="m-subtotal">$0.00</span></div>
-                        <div class="flex justify-between text-gray-500"><span>Impuesto (8%)</span><span id="m-impuesto">$0.00</span></div>
-                        <div class="flex justify-between font-bold text-lg text-gray-800"><span>Total</span><span id="m-total">$0.00</span></div>
-                    </div>
-                </div>
-
-                <div class="p-8 bg-gray-50">
-                    <h3 class="text-xl font-bold mb-6">Método de Pago</h3>
-                    <div class="flex gap-2 mb-6">
-                        <button class="flex-1 py-3 bg-white border border-gray-200 rounded-xl font-medium">Efectivo</button>
-                        <button class="flex-1 py-3 bg-white border-2 border-[#BC5F40] text-[#BC5F40] rounded-xl font-bold">Tarjeta</button>
-                        <button class="flex-1 py-3 bg-white border border-gray-200 rounded-xl font-medium">Digital</button>
-                    </div>
-                    
-                    <input type="text" placeholder="Ej. Juan Pérez" class="w-full p-3 rounded-xl border border-gray-200 mb-4">
-                    <input type="text" placeholder="0000 0000 0000 0000" class="w-full p-3 rounded-xl border border-gray-200 mb-4">
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <input type="text" placeholder="MM/AA" class="p-3 rounded-xl border border-gray-200">
-                        <input type="text" placeholder="***" class="p-3 rounded-xl border border-gray-200">
-                    </div>
-
-                    <button onclick="procesarPagoFinal()" class="w-full bg-[#BC5F40] text-white font-bold py-4 rounded-xl hover:bg-amber-800 transition shadow-lg">
-                        Finalizar Pago <span id="m-total-btn">$0.00</span>
-                    </button>
-                    <p class="text-[10px] text-gray-400 mt-4 text-center">Pago procesado de forma segura bajo estándares PCI-DSS.</p>
-                </div>
-            </div>
-        </div>
     <script src="../js/pedidos.js"></script>
     <?php include __DIR__ . '/../Utilities/footer.php'; ?>
 </body>

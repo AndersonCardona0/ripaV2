@@ -47,6 +47,10 @@ verificarAutenticacion();
 
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold text-gray-800">Gestión de Productos</h2>
+                <button onclick="document.getElementById('modal-categoria').classList.remove('hidden')" 
+                        class="border-2 border-[#BC5F40] text-[#BC5F40] hover:bg-stone-50 px-6 py-3 rounded-xl font-semibold shadow-sm transition">
+                    + Nueva Categoría
+                </button>
                 <button onclick="document.getElementById('modal-producto').classList.remove('hidden')" 
                         class="bg-[#BC5F40] text-white px-6 py-3 rounded-xl hover:bg-[#a04e35] shadow-lg transition">
                     + Nuevo Producto
@@ -82,6 +86,22 @@ verificarAutenticacion();
 
                 <div class="flex gap-4 mt-8">
                     <button type="button" onclick="document.getElementById('modal-producto').classList.add('hidden')" 
+                            class="flex-1 p-4 bg-gray-100 rounded-2xl text-gray-600 font-semibold">Cancelar</button>
+                    <button type="submit" 
+                            class="flex-1 p-4 bg-[#BC5F40] text-white rounded-2xl font-semibold hover:bg-[#a04e35]">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-categoria" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Agregar Categoría</h2>
+            <form id="form-categoria" onsubmit="guardarCategoria(event)" class="space-y-4">
+                <input type="text" name="nombre" class="w-full p-4 bg-gray-50 rounded-2xl border border-transparent focus:border-[#BC5F40] outline-none" placeholder="Nombre de la categoría" required>
+
+                <div class="flex gap-4 mt-8">
+                    <button type="button" onclick="document.getElementById('modal-categoria').classList.add('hidden')" 
                             class="flex-1 p-4 bg-gray-100 rounded-2xl text-gray-600 font-semibold">Cancelar</button>
                     <button type="submit" 
                             class="flex-1 p-4 bg-[#BC5F40] text-white rounded-2xl font-semibold hover:bg-[#a04e35]">Guardar</button>

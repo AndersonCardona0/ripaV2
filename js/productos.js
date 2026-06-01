@@ -42,7 +42,6 @@ async function refrescarListaAvisos() {
         const response = await fetch('../controllers/api_leer_avisos.php?t=' + new Date().getTime());
         const result = await response.json();
 
-        console.log("DEBUG: Estructura del primer aviso:", result.data[0]);
         // Verificamos si el servidor contestó bien
         if (!response.ok) throw new Error("Error en la conexión con el servidor");
         
@@ -154,5 +153,33 @@ async function guardarProducto(e) {
         cargarProductos(formData.get('categoria_id')); 
     } else {
         alert("Error del servidor: " + data.message);
+    }
+}
+
+async function guardarCategoria(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+
+    try {
+        const res = await fetch('../controllers/api_categorias.php', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+            alert('Categoría guardada con éxito.');
+            document.getElementById('modal-categoria').classList.add('hidden');
+            form.reset();
+            
+            // Refresca los botones y el select dinámicamente sin recargar la página
+            await cargarCategorias(); 
+        } else {
+            alert('Error al guardar la categoría: ' + (data.message || 'Error desconocido'));
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        alert('Ocurrió un error de red al intentar guardar.');
     }
 }
