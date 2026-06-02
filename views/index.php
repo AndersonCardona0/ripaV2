@@ -123,6 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear_aviso'])) {
                 </div>
             </div>
         </div>
-        <?php include __DIR__ . '/../Utilities/footer.php'; ?>
+        <?php include __DIR__ . '/../utilities/footer.php'; ?>
     </body>
 </html>

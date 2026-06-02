@@ -6,8 +6,7 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
     .no-transition { transition: none !important; }
 </style>
 
-<div id="sidebar" class="w-0 w-64 transition-all duration-300 ease-in-out
- overflow-hidden bg-white border-r border-gray-100 flex flex-col h-screen flex-shrink-0 whitespace-nowrap">
+<div id="sidebar" class="w-64 transition-all duration-300 ease-in-out overflow-hidden bg-white border-r border-gray-100 flex flex-col h-screen flex-shrink-0 whitespace-nowrap">
     
     <div class="p-6 border-b border-gray-50">
         <div class="text-xl font-bold text-[#BC5F40] mb-6 tracking-wide" id="brand-name">Artisanal POS</div>
@@ -44,42 +43,63 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
 </div>
 
 <div id="modal-avisos" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Nuevo Aviso Operativo</h2>
-            <form id="form-crear-aviso" method="POST">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Título</label>
-                        <input type="text" name="titulo" required placeholder="Ej: Sin postres hoy" 
-                            class="w-full mt-1 p-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#BC5F40]">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700">Especificaciones</label>
-                        <textarea name="mensaje" required placeholder="Detalles..." 
-                                class="w-full mt-1 p-3 bg-gray-50 border border-gray-100 rounded-xl h-24 focus:outline-none focus:ring-2 focus:ring-[#BC5F40]"></textarea>
-                    </div>
+    <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Nuevo Aviso Operativo</h2>
+        <form id="form-crear-aviso" method="POST">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Título</label>
+                    <input type="text" name="titulo" required placeholder="Ej: Sin postres hoy" 
+                        class="w-full mt-1 p-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#BC5F40]">
                 </div>
-                <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="document.getElementById('modal-avisos').classList.add('hidden')"
-                            class="flex-1 p-3 rounded-xl bg-gray-100 text-gray-600 font-semibold hover:bg-gray-200">Cancelar</button>
-                    <button type="submit" name="crear_aviso" 
-                            class="flex-1 p-3 rounded-xl bg-[#BC5F40] text-white font-semibold hover:bg-amber-800">Publicar</button>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Especificaciones</label>
+                    <textarea name="mensaje" required placeholder="Detalles..." 
+                            class="w-full mt-1 p-3 bg-gray-50 border border-gray-100 rounded-xl h-24 focus:outline-none focus:ring-2 focus:ring-[#BC5F40]"></textarea>
                 </div>
-            </form> 
-        </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button type="button" onclick="document.getElementById('modal-avisos').classList.add('hidden')"
+                        class="flex-1 p-3 rounded-xl bg-gray-100 text-gray-600 font-semibold hover:bg-gray-200">Cancelar</button>
+                <button type="submit" name="crear_aviso" 
+                        class="flex-1 p-3 rounded-xl bg-[#BC5F40] text-white font-semibold hover:bg-amber-800">Publicar</button>
+            </div>
+        </form> 
     </div>
+</div>
 
 <script>
     (function() {
         const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
         
-        if (localStorage.getItem('sidebarState') === 'closed') {
+        // Verificar e imprimir estado inicial guardado
+        const estadoGuardado = localStorage.getItem('sidebarState');
+        console.log("📦 [Sidebar] Estado inicial recuperado de la memoria:", estadoGuardado);
+
+        if (estadoGuardado === 'closed') {
             sidebar.classList.remove('w-64');
             sidebar.classList.add('w-0');
         }
 
-        setTimeout(() => {
-            sidebar.classList.add('transition-all', 'duration-300', 'ease-in-out');
-        }, 50);
+        // Delegación de eventos limpia y con logs de diagnóstico
+        document.addEventListener('click', function(event) {
+            const btn = event.target.closest('#toggle-sidebar');
+            if (!btn) return; // Si el clic no fue en el botón, no hacer nada
+
+            console.log("🎯 [Sidebar] ¡Botón detectado y presionado con éxito!");
+
+            if (sidebar.classList.contains('w-64')) {
+                console.log("👉 Cambiando estado a: CERRADO (w-0)");
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-0');
+                localStorage.setItem('sidebarState', 'closed');
+            } else {
+                console.log("👉 Cambiando estado a: ABIERTO (w-64)");
+                sidebar.classList.remove('w-0');
+                sidebar.classList.add('w-64');
+                localStorage.setItem('sidebarState', 'open');
+            }
+        });
     })();
 </script>

@@ -8,25 +8,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     cargarProductos(1);
     await refrescarListaAvisos();
 
-    
-    const toggleButton = document.getElementById('toggle-sidebar');
-    const sidebar = document.getElementById('sidebar');
-
-
-
-    if (toggleButton && sidebar) {
-        toggleButton.addEventListener('click', () => {
-            if (sidebar.classList.contains('w-0')) {
-                sidebar.classList.remove('w-0');
-                sidebar.classList.add('w-64');
-                localStorage.setItem('sidebarState', 'open');
-            } else {
-                sidebar.classList.remove('w-64');
-                sidebar.classList.add('w-0');
-                localStorage.setItem('sidebarState', 'closed');
-            }
-        });
-    }
 });
 
 

@@ -21,8 +21,8 @@ verificarAutenticacion();
     <main class="flex-1 flex flex-col h-screen overflow-hidden">
         
         <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10">
-            <button id="toggle-sidebar" class="p-3 text-gray-500 hover:bg-gray-100 rounded-lg flex items-center justify-center transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button id="toggle-sidebar" class="mr-4 p-3 text-gray-500 hover:bg-gray-100 rounded-lg flex items-center justify-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>

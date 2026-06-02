@@ -1,6 +1,5 @@
-// ========================================================
 // 1. SISTEMA DE COMUNICACIÓN EN TIEMPO REAL (WEBSOCKET GLOBAL)
-// ========================================================
+
 let ws;
 
 function conectarWebSocket() {
@@ -15,7 +14,6 @@ function conectarWebSocket() {
         console.log("📩 Mensaje recibido del servidor WebSocket:", event.data);
         
         if (event.data === 'refrescar_avisos') {
-            // DETECCIÓN INTELIGENTE (Para que no se rompa en Mesas u otras vistas)
             if (typeof refrescarListaAvisos === 'function') {
                 console.log("🔄 Refrescando lista de avisos en esta sección...");
                 await refrescarListaAvisos();
@@ -35,46 +33,13 @@ function conectarWebSocket() {
     };
 }
 
-// ========================================================
+
 // 2. LÓGICA CENTRAL DEL DOM (AL CARGAR LA PÁGINA)
-// ========================================================
+
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 🔥 CORREGIDO: Encendemos el WebSocket inmediatamente de forma global
+    // Encendemos el WebSocket inmediatamente de forma global
     conectarWebSocket();
-    
-    // --- Lógica del Sidebar ---
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('toggle-sidebar');
-
-    if (sidebar && toggleBtn) {
-        const savedState = localStorage.getItem('sidebarState') || 'open';
-        
-        if (savedState === 'closed') {
-            sidebar.classList.remove('w-64');
-            sidebar.classList.add('w-0');
-        } else {
-            sidebar.classList.remove('w-0');
-            sidebar.classList.add('w-64');
-        }
-
-        setTimeout(() => {
-            sidebar.classList.add('transition-all', 'duration-300');
-        }, 100);
-
-        toggleBtn.addEventListener('click', () => {
-            const isClosed = sidebar.classList.contains('w-0');
-            if (isClosed) {
-                sidebar.classList.remove('w-0');
-                sidebar.classList.add('w-64');
-                localStorage.setItem('sidebarState', 'open');
-            } else {
-                sidebar.classList.remove('w-64');
-                sidebar.classList.add('w-0');
-                localStorage.setItem('sidebarState', 'closed');
-            }
-        });
-    }
 
     // --- Lógica específica de Mesas ---
     const contenedor = document.getElementById('grid-mesas');
@@ -165,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (formAvisoGlobal) {
         formAvisoGlobal.addEventListener('submit', async (e) => {
-            e.preventDefault(); // 🚫 Evita recargas
+            e.preventDefault(); 
             console.log("Sistema global: Enviando aviso en segundo plano...");
 
             const formData = new FormData(formAvisoGlobal);
@@ -181,10 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    formAvisoGlobal.reset(); // Limpia los campos
-                    if (modalAvisosGlobal) modalAvisosGlobal.classList.add('hidden'); // Cierra el modal solo
+                    formAvisoGlobal.reset(); 
+                    if (modalAvisosGlobal) modalAvisosGlobal.classList.add('hidden'); 
                     
-                    // Si la función de refrescar existe en esta pantalla (como el Dashboard), la ejecuta
                     if (typeof refrescarListaAvisos === 'function') {
                         await refrescarListaAvisos();
                     }
@@ -198,9 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ========================================================
+
 // 3. LOGICA DE MODALES UNIVERSALES Y NAVEGACIÓN (GLOBALES)
-// ========================================================
+
 window.openConfirmModal = function(title, message, url, isDestructive = true) {
     const modal = document.getElementById('modal-confirm');
     document.getElementById('confirm-title').innerText = title;
