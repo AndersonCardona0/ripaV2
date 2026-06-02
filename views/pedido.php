@@ -288,7 +288,6 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
             .then(res => res.json())
             .then(res => {
                 if (res.status === 'success') {
-                    alert(res.message); 
                     window.location.href = 'index.php'; 
                 } else {
                     alert('Error al guardar: ' + res.message);
