@@ -143,8 +143,8 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                             }
 
                             const clasesBoton = esActiva 
-                                ? 'category-btn w-full bg-amber-100 text-amber-800 font-medium py-3 px-4 rounded-xl flex items-center mb-2 dynamic-active'
-                                : 'category-btn w-full text-gray-500 hover:bg-gray-50 font-medium py-3 px-4 rounded-xl flex items-center mb-2';
+                                ? 'category-btn w-full bg-amber-100 text-amber-800 font-medium py-2.5 px-4 rounded-xl flex items-center text-left leading-tight transition-all dynamic-active'
+                                : 'category-btn w-full text-gray-500 hover:bg-gray-50 hover:text-gray-800 font-medium py-2.5 px-4 rounded-xl flex items-center text-left leading-tight transition-all';
 
                             contenedor.innerHTML += `
                                 <button onclick="cambiarCategoria(${cat.id}, this)" class="${clasesBoton}">
@@ -193,10 +193,11 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
 
         function cambiarCategoria(id, boton) {
             document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('bg-amber-100', 'text-amber-800', 'font-medium');
+                btn.classList.remove('bg-amber-100', 'text-amber-800', 'hover:text-gray-800');
                 btn.classList.add('text-gray-500');
             });
-            boton.classList.add('bg-amber-100', 'text-amber-800', 'font-medium');
+            boton.classList.remove('text-gray-500');
+            boton.classList.add('bg-amber-100', 'text-amber-800');
             cargarProductos(id);
         }
 
