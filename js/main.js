@@ -191,3 +191,136 @@ window.closeConfirmModal = function() {
 window.irAMesa = function(id) {
     window.location.href = '/views/pedido.php?mesa=' + id;
 }
+
+// Lógica de configuración de mesas
+
+// function abrirConfiguracionSalon() {
+//     const totalMesasActuales = document.getElementById('grid-mesas').children.length;
+//     const input = document.getElementById('input-total-mesas');
+    
+//     input.value = totalMesasActuales > 0 ? totalMesasActuales : 12; // 12 por defecto si la base está limpia
+//     actualizarPrevisualizacion(parseInt(input.value));
+    
+//     document.getElementById('modal-config-salon').classList.remove('hidden');
+// }
+
+// function cambiarCantidadMesas(valor) {
+//     const input = document.getElementById('input-total-mesas');
+//     let actual = parseInt(input.value) + valor;
+//     if (actual >= 1 && actual <= 50) { 
+//         input.value = actual;
+//         actualizarPrevisualizacion(actual);
+//     }
+// }
+
+// function actualizarPrevisualizacion(total) {
+//     const grid = document.getElementById('previsualizacion-grid');
+//     grid.innerHTML = '';
+//     for (let i = 1; i <= total; i++) {
+//         const box = document.createElement('div');
+//         box.className = "w-10 h-10 rounded-xl bg-[#F5EDE3] border border-[#BC5F40]/20 flex items-center justify-center text-xs font-bold text-[#BC5F40] shadow-sm";
+//         box.innerText = i;
+//         grid.appendChild(box);
+//     }
+// }
+
+// // Envía la nueva cantidad al controlador del backend
+// function guardarConfiguracionMesas() {
+//     const nuevoTotal = document.getElementById('input-total-mesas').value;
+
+//     fetch('/controllers/api_actualizar_total_mesas.php', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ total_mesas: parseInt(nuevoTotal) })
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+//         if (data.status === 'success') {
+//             document.getElementById('modal-config-salon').classList.add('hidden');
+//             if (typeof cargarMesas === 'function') {
+//                 cargarMesas(); // Recarga el mapa de mesas principal instantáneamente
+//             } else {
+//                 window.location.reload(); 
+//             }
+//         } else {
+//             alert('Error al actualizar las mesas: ' + data.message);
+//         }
+//     })
+//     .catch(err => {
+//         console.error('Error:', err);
+//         alert('Error en la comunicación con el servidor.');
+//     });
+// }
+
+window.abrirConfiguracionSalon = function() {
+    const gridMesas = document.getElementById('grid-mesas');
+    // Captura el conteo real basado en los elementos hijos inyectados por la API
+    const totalMesasActuales = gridMesas ? gridMesas.children.length : 0;
+    const input = document.getElementById('input-total-mesas');
+    
+    if (input) {
+        input.value = totalMesasActuales > 0 ? totalMesasActuales : 12; // 12 por defecto si la base de datos está vacía
+        window.actualizarPrevisualizacion(parseInt(input.value));
+    }
+    
+    const modal = document.getElementById('modal-config-salon');
+    if (modal) modal.classList.remove('hidden');
+};
+
+window.cambiarCantidadMesas = function(valor) {
+    const input = document.getElementById('input-total-mesas');
+    if (input) {
+        let actual = parseInt(input.value) + valor;
+        if (actual >= 1 && actual <= 50) { 
+            input.value = actual;
+            window.actualizarPrevisualizacion(actual);
+        }
+    }
+};
+
+window.actualizarPrevisualizacion = function(total) {
+    const gridPrevis = document.getElementById('previsualizacion-grid');
+    if (gridPrevis) {
+        gridPrevis.innerHTML = '';
+        for (let i = 1; i <= total; i++) {
+            const box = document.createElement('div');
+            box.className = "w-10 h-10 rounded-xl bg-[#F5EDE3] border border-[#BC5F40]/20 flex items-center justify-center text-xs font-bold text-[#BC5F40] shadow-sm animate-inside";
+            box.innerText = i;
+            gridPrevis.appendChild(box);
+        }
+    }
+};
+
+window.guardarConfiguracionMesas = function() {
+    const input = document.getElementById('input-total-mesas');
+    if (!input) return;
+    
+    const nuevoTotal = parseInt(input.value);
+
+    fetch('/controllers/api_actualizar_total_mesas.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ total_mesas: nuevoTotal })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Ocultar modal con éxito
+            const modal = document.getElementById('modal-config-salon');
+            if (modal) modal.classList.add('hidden');
+            
+            // Refresco asíncrono e inteligente sin recargar la página completa
+            if (typeof window.cargarMesas === 'function') {
+                window.cargarMesas(); 
+            } else {
+                window.location.reload(); 
+            }
+        } else {
+            alert('Error al actualizar las mesas: ' + data.message);
+        }
+    })
+    .catch(err => {
+        console.error('Error en la petición de actualización:', err);
+        alert('Error en la comunicación con el servidor.');
+    });
+};
