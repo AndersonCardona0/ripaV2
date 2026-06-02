@@ -2,11 +2,9 @@
 header('Content-Type: application/json');
 require_once '../config/conexion.php';
 
-// Capturamos el flujo de datos JSON que envía JavaScript
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
 
-// Validamos que la información esencial haya llegado
 if (!$data || !isset($data['mesa_id']) || !isset($data['items']) || empty($data['items'])) {
     echo json_encode(['status' => 'error', 'message' => 'Datos del pedido incompletos o inválidos.']);
     exit;
@@ -14,58 +12,79 @@ if (!$data || !isset($data['mesa_id']) || !isset($data['items']) || empty($data[
 
 $mesa_id = intval($data['mesa_id']);
 $items = $data['items'];
-$usuario_id = 2; // Por ahora dejamos fijo el ID del mesero Carlos que creamos en los inserts
+$usuario_id = 2; // ID fijo del mesero Carlos por ahora
 
 try {
-    // Iniciamos una TRANSACCIÓN en MySQL. 
-    // Esto asegura que si algo falla a mitad de camino, no se guarde nada a medias.
     $pdo->beginTransaction();
 
-    // 1. Calcular el total real sumando los productos (con el 8% de impuesto)
+    // 1. Validar y asegurar el ID real de la mesa usando marcadores posicionales (?)
+    $sql_mesa_info = "SELECT id FROM mesas WHERE id = ? OR numero_mesa = ? LIMIT 1";
+    $stmt_mesa_info = $pdo->prepare($sql_mesa_info);
+    $stmt_mesa_info->execute([$mesa_id, $mesa_id]);
+    $mesa_row = $stmt_mesa_info->fetch(PDO::FETCH_ASSOC);
+
+    if (!$mesa_row) {
+        echo json_encode(['status' => 'error', 'message' => 'Mesa no encontrada.']);
+        $pdo->rollBack();
+        exit;
+    }
+    $real_mesa_id = $mesa_row['id'];
+
+    // 2. Calcular el total real sumando los productos (con el 8% de impuesto)
     $subtotal = 0;
     foreach ($items as $item) {
         $subtotal += floatval($item['precio']) * intval($item['cantidad']);
     }
     $total_con_impuesto = $subtotal * 1.08;
 
-    // 2. Insertar el pedido general
-    $sql_pedido = "INSERT INTO pedidos (mesa_id, usuario_id, estado, total) VALUES (:mesa_id, :usuario_id, 'pendiente', :total)";
-    $stmt_pedido = $pdo->prepare($sql_pedido);
-    $stmt_pedido->execute([
-        'mesa_id' => $mesa_id,
-        'usuario_id' => $usuario_id,
-        'total' => $total_con_impuesto
-    ]);
-    
-    // Obtenemos el ID del pedido que se acaba de crear de forma automática
-    $pedido_id = $pdo->lastInsertId();
+    // 3. Verificar si YA existe un pedido pendiente para esta mesa
+    $sql_check = "SELECT id FROM pedidos WHERE mesa_id = ? AND estado = 'pendiente' LIMIT 1";
+    $stmt_check = $pdo->prepare($sql_check);
+    $stmt_check->execute([$real_mesa_id]);
+    $pedido_existente = $stmt_check->fetch(PDO::FETCH_ASSOC);
 
-    // 3. Insertar cada ítem en el detalle del pedido
-    $sql_detalle = "INSERT INTO detalle_pedidos (pedido_id, producto_id, cantidad, precio_unitario) 
-                    VALUES (:pedido_id, :producto_id, :cantidad, :precio_unitario)";
+    if ($pedido_existente) {
+        // ESCENARIO A: El pedido ya existe, lo actualizamos
+        $pedido_id = $pedido_existente['id'];
+        
+        $sql_update_pedido = "UPDATE pedidos SET total = ? WHERE id = ?";
+        $stmt_update = $pdo->prepare($sql_update_pedido);
+        $stmt_update->execute([$total_con_impuesto, $pedido_id]);
+        
+        // Limpiamos los detalles viejos de este pedido para reescribirlos
+        $sql_delete_detalles = "DELETE FROM detalle_pedidos WHERE pedido_id = ?";
+        $stmt_delete = $pdo->prepare($sql_delete_detalles);
+        $stmt_delete->execute([$pedido_id]);
+    } else {
+        // ESCENARIO B: Es un pedido nuevo, lo insertamos
+        $sql_pedido = "INSERT INTO pedidos (mesa_id, usuario_id, estado, total) VALUES (?, ?, 'pendiente', ?)";
+        $stmt_pedido = $pdo->prepare($sql_pedido);
+        $stmt_pedido->execute([$real_mesa_id, $usuario_id, $total_con_impuesto]);
+        $pedido_id = $pdo->lastInsertId();
+    }
+
+    // 4. Insertar los ítems actualizados en el detalle
+    $sql_detalle = "INSERT INTO detalle_pedidos (pedido_id, producto_id, cantidad, precio_unitario) VALUES (?, ?, ?, ?)";
     $stmt_detalle = $pdo->prepare($sql_detalle);
 
     foreach ($items as $item) {
         $stmt_detalle->execute([
-            'pedido_id' => $pedido_id,
-            'producto_id' => intval($item['id']),
-            'cantidad' => intval($item['cantidad']),
-            'precio_unitario' => floatval($item['precio'])
+            $pedido_id,
+            intval($item['id']),
+            intval($item['cantidad']),
+            floatval($item['precio'])
         ]);
     }
 
-    // 4. Actualizar el estado de la mesa a 'ocupada'
-    $sql_mesa = "UPDATE mesas SET estado = 'ocupada' WHERE numero_mesa = :numero_mesa";
+    // 5. Cambiar estado de la mesa a ocupada
+    $sql_mesa = "UPDATE mesas SET estado = 'ocupada' WHERE id = ?";
     $stmt_mesa = $pdo->prepare($sql_mesa);
-    $stmt_mesa->execute(['numero_mesa' => $mesa_id]);
+    $stmt_mesa->execute([$real_mesa_id]);
 
-    // Si todo salió bien, guardamos los cambios definitivamente
     $pdo->commit();
-
-    echo json_encode(['status' => 'success', 'message' => 'Pedido enviado a la cocina correctamente.']);
+    echo json_encode(['status' => 'success', 'message' => 'Pedido procesado correctamente.']);
 
 } catch (\PDOException $e) {
-    // Si algo falló, revertimos todo para no corromper la base de datos
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
