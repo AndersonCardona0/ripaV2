@@ -86,9 +86,7 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
                             </span>
                         </div>
                     </div>
-                </div>
-
-                <?php if ($esAdmin): ?>
+                    <?php if ($esAdmin): ?>
                     <button onclick="abrirConfiguracionSalon()" 
                                 class="p-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-400 hover:text-primary hover:border-orange-200 transition-all flex items-center justify-center group"
                                 title="Configuración del Salón">
@@ -98,6 +96,9 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
                             </svg>
                         </button>
                     <?php endif; ?>
+                </div>
+
+                    
 
                 <div id="grid-mesas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 </div>
@@ -109,7 +110,6 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
             <div class="bg-[#FBF9F6] rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-gray-100">
                 <div class="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-100">
                     <div class="flex items-center space-x-2 text-gray-800">
-                        <span class="text-xl">🏪</span>
                         <h2 class="text-base font-bold text-gray-900">Configuración del Salón</h2>
                     </div>
                     <button onclick="document.getElementById('modal-config-salon').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 transition">

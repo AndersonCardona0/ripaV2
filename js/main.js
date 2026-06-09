@@ -11,14 +11,14 @@ function conectarWebSocket() {
     };
 
     ws.onmessage = async (event) => {
-        console.log("📩 Mensaje recibido del servidor WebSocket:", event.data);
+        console.log("Mensaje recibido del servidor WebSocket:", event.data);
         
         if (event.data === 'refrescar_avisos') {
             if (typeof refrescarListaAvisos === 'function') {
                 console.log("🔄 Refrescando lista de avisos en esta sección...");
                 await refrescarListaAvisos();
             } else {
-                console.log("ℹ️ Aviso recibido. No hay lista que refrescar en esta pantalla, pero el sistema está al día.");
+                console.log("ℹAviso recibido. No hay lista que refrescar en esta pantalla, pero el sistema está al día.");
             }
         }
     };
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             tarjetaHtml = `
                                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between h-48 transition hover:shadow-md cursor-pointer" onclick="irAMesa(${mesa.numero_mesa})">
                                     <div class="mesa-header">
-                                        <h3 class="text-xl font-bold text-gray-800">T-${mesa.numero_mesa.toString().padStart(2, '0')}</h3>
+                                        <h3 class="text-xl font-bold text-gray-800">Mesa ${mesa.numero_mesa.toString().padStart(2, '0')}</h3>
                                         <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">Disponible</span>
                                     </div>
                                     <div class="text-xs text-gray-400 mt-2">Mesa lista para recibir clientes.</div>
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             tarjetaHtml = `
                                 <div class="bg-white rounded-3xl p-6 shadow-sm border-2 border-secondary flex flex-col justify-between h-48 cursor-pointer" onclick="irAMesa(${mesa.numero_mesa})">
                                     <div class="mesa-header">
-                                        <h3 class="text-xl font-bold text-gray-800">T-${mesa.numero_mesa.toString().padStart(2, '0')}</h3>
+                                        <h3 class="text-xl font-bold text-gray-800">Mesa ${mesa.numero_mesa.toString().padStart(2, '0')}</h3>
                                         <span class="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">Ocupada</span>
                                     </div>
                                     <div class="text-xs text-gray-400 mt-2">Consumiendo en mesa...</div>
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                             <span class="text-xl font-bold text-gray-900">$${mesa.total_balance.toFixed(2)}</span>
                                         </div>
                                         <div class="flex -space-x-2">
-                                            <div class="w-7 h-7 bg-amber-700 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white font-bold">☕</div>
+                                            <div class="w-7 h-7 bg-amber-700 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white font-bold"></div>
                                         </div>
                                     </div>
                                 </div>`;

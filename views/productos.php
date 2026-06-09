@@ -74,7 +74,7 @@ verificarAutenticacion();
         </div>
     </main>
 
-    <div id="modal-producto" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <!-- <div id="modal-producto" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Agregar Producto</h2>
             <form id="form-producto" onsubmit="guardarProducto(event)" class="space-y-4">
@@ -83,6 +83,30 @@ verificarAutenticacion();
                 
                 <select name="categoria_id" id="select-categorias" class="w-full p-4 bg-gray-50 rounded-2xl border border-transparent focus:border-[#BC5F40] outline-none">
                 </select>
+
+                <div class="flex gap-4 mt-8">
+                    <button type="button" onclick="document.getElementById('modal-producto').classList.add('hidden')" 
+                            class="flex-1 p-4 bg-gray-100 rounded-2xl text-gray-600 font-semibold">Cancelar</button>
+                    <button type="submit" 
+                            class="flex-1 p-4 bg-[#BC5F40] text-white rounded-2xl font-semibold hover:bg-[#a04e35]">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div> -->
+    <div id="modal-producto" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Agregar Producto</h2>
+            <form id="form-producto" onsubmit="guardarProducto(event)" enctype="multipart/form-data" class="space-y-4">
+                <input type="text" name="nombre" class="w-full p-4 bg-gray-50 rounded-2xl border border-transparent focus:border-[#BC5F40] outline-none" placeholder="Nombre del producto" required>
+                <input type="number" step="0.01" name="precio" class="w-full p-4 bg-gray-50 rounded-2xl border border-transparent focus:border-[#BC5F40] outline-none" placeholder="Precio" required>
+                
+                <select name="categoria_id" id="select-categorias" class="w-full p-4 bg-gray-50 rounded-2xl border border-transparent focus:border-[#BC5F40] outline-none">
+                </select>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider pl-1">Imagen del Producto</label>
+                    <input type="file" name="imagen" accept="image/*" class="w-full p-3 bg-gray-50 rounded-2xl border border-transparent focus:border-[#BC5F40] outline-none text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#BC5F40]/10 file:text-[#BC5F40] hover:file:bg-[#BC5F40]/20 cursor-pointer">
+                </div>
 
                 <div class="flex gap-4 mt-8">
                     <button type="button" onclick="document.getElementById('modal-producto').classList.add('hidden')" 

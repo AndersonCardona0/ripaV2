@@ -41,8 +41,8 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
             <input type="text" placeholder="Search products..." class="bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none w-64">
         </header>
 
-        <main class="flex-1 p-8 overflow-y-auto">
-            <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 overflow-y-auto overflow-x-hidden w-full max-w-full p-1"></div>
+        <main class="flex-1 p-6 overflow-y-auto">
+            <div id="grid-productos" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 overflow-y-auto overflow-x-hidden w-full max-w-full p-1"></div>
         </main>
     </div>
 
@@ -161,6 +161,35 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                 .catch(err => console.error("Error al cargar categorías:", err));
         }
 
+        // function cargarProductos(categoriaId) {
+        //     fetch(`../controllers/api_productos.php?categoria=${categoriaId}`)
+        //         .then(res => res.json())
+        //         .then(res => {
+        //             if (res.status === 'success') {
+        //                 const grid = document.getElementById('grid-productos');
+        //                 grid.innerHTML = '';
+                        
+        //                 res.data.forEach(prod => {
+        //                     grid.innerHTML += `
+        //                         <div onclick="agregarAlCarrito(${prod.id}, '${prod.nombre}', ${prod.precio})" 
+        //                             class="w-full bg-white border border-stone-200 rounded-2xl p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition h-40 box-border">
+        //                             <div class="w-full flex flex-col gap-y-1">
+        //                                 <h3 class="font-bold text-gray-800 text-sm sm:text-base leading-snug line-clamp-2" title="${prod.nombre}">
+        //                                     ${prod.nombre}
+        //                                 </h3>
+        //                                 <span class="font-extrabold text-amber-700 text-sm sm:text-base mt-1">
+        //                                     $${parseFloat(prod.precio).toFixed(2)}
+        //                                 </span>
+        //                             </div>
+        //                             <div class="flex items-center justify-between text-xs text-gray-400 border-t border-stone-100 pt-2 w-full mt-auto">
+        //                                 <span>Ver detalle</span>
+        //                                 <span class="text-amber-500 font-bold bg-stone-50 px-2 py-1 rounded-lg border border-stone-100">🛒+</span>
+        //                             </div>
+        //                         </div>`;
+        //                 });
+        //             }
+        //         });
+        // }
         function cargarProductos(categoriaId) {
             fetch(`../controllers/api_productos.php?categoria=${categoriaId}`)
                 .then(res => res.json())
@@ -170,20 +199,35 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                         grid.innerHTML = '';
                         
                         res.data.forEach(prod => {
+                            const imagenCard = prod.imagen 
+                                ? `<img src="../uploads/productos/${prod.imagen}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" alt="${prod.nombre}">`
+                                : `<div class="w-full h-full flex flex-col items-center justify-center bg-stone-100 text-stone-300 gap-1 select-none">
+                                     <span class="text-xl">🍞</span>
+                                     <span class="text-[9px] font-bold uppercase tracking-wider">Sin Foto</span>
+                                   </div>`;
+
                             grid.innerHTML += `
                                 <div onclick="agregarAlCarrito(${prod.id}, '${prod.nombre}', ${prod.precio})" 
-                                    class="w-full bg-white border border-stone-200 rounded-2xl p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition h-40 box-border">
-                                    <div class="w-full flex flex-col gap-y-1">
-                                        <h3 class="font-bold text-gray-800 text-sm sm:text-base leading-snug line-clamp-2" title="${prod.nombre}">
+                                     class="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all duration-200 w-full">
+                                    
+                                    <div class="w-full aspect-square bg-stone-50 overflow-hidden relative border-b border-gray-50">
+                                        ${imagenCard}
+                                    </div>
+                                    
+                                    <div class="p-3 flex flex-col gap-y-1">
+                                        <h3 class="font-bold text-gray-800 text-xs sm:text-sm tracking-tight line-clamp-1 group-hover:text-primary transition-colors" title="${prod.nombre}">
                                             ${prod.nombre}
                                         </h3>
-                                        <span class="font-extrabold text-amber-700 text-sm sm:text-base mt-1">
-                                            $${parseFloat(prod.precio).toFixed(2)}
-                                        </span>
-                                    </div>
-                                    <div class="flex items-center justify-between text-xs text-gray-400 border-t border-stone-100 pt-2 w-full mt-auto">
-                                        <span>Ver detalle</span>
-                                        <span class="text-amber-500 font-bold bg-stone-50 px-2 py-1 rounded-lg border border-stone-100">🛒+</span>
+                                        
+                                        <div class="flex items-center justify-between mt-0.5">
+                                            <span class="text-xs sm:text-sm font-extrabold text-[#BC5F40]">
+                                                $${parseFloat(prod.precio).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                            </span>
+                                            
+                                            <button class="w-7 h-7 bg-[#BC5F40] text-white rounded-lg flex items-center justify-center font-bold text-base shadow-sm hover:bg-[#a04e35] transition-transform active:scale-95">
+                                                +
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>`;
                         });

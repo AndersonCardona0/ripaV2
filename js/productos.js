@@ -92,9 +92,35 @@ async function cargarCategorias() {
     }
 }
 
+// async function cargarProductos(catId) {
+//     try {
+//         // 1. PRIMERO: Hacemos la petición al servidor (independiente del DOM)
+//         const res = await fetch(`../controllers/api_productos.php?categoria=${catId}`);
+//         if (!res.ok) throw new Error("Error al conectar con la API");
+//         const data = await res.json();
+        
+//         // 2. DESPUÉS: Buscamos el elemento y dibujamos solo si existe
+//         const tbody = document.getElementById('tabla-productos');
+        
+//         if (tbody) {
+//             tbody.innerHTML = data.data.map(p => `
+//                 <tr>
+//                     <td class="px-6 py-4 font-semibold">${p.nombre}</td>
+//                     <td class="px-6 py-4">$${parseFloat(p.precio).toLocaleString()}</td>
+//                     <td class="px-6 py-4"><button class="text-red-500">Eliminar</button></td>
+//                 </tr>
+//             `).join('');
+//         } else {
+            
+//         }
+//     } catch (error) {
+//         console.error("Error al cargar productos:", error);
+//     }
+// }
+
 async function cargarProductos(catId) {
     try {
-        // 1. PRIMERO: Hacemos la petición al servidor (independiente del DOM)
+        // 1. PRIMERO: Hacemos la petición al servidor
         const res = await fetch(`../controllers/api_productos.php?categoria=${catId}`);
         if (!res.ok) throw new Error("Error al conectar con la API");
         const data = await res.json();
@@ -103,15 +129,23 @@ async function cargarProductos(catId) {
         const tbody = document.getElementById('tabla-productos');
         
         if (tbody) {
-            tbody.innerHTML = data.data.map(p => `
-                <tr>
-                    <td class="px-6 py-4 font-semibold">${p.nombre}</td>
-                    <td class="px-6 py-4">$${parseFloat(p.precio).toLocaleString()}</td>
-                    <td class="px-6 py-4"><button class="text-red-500">Eliminar</button></td>
-                </tr>
-            `).join('');
-        } else {
-            
+            tbody.innerHTML = data.data.map(p => {
+                // Generar el HTML de la miniatura dinámicamente
+                const htmlImagen = p.imagen 
+                    ? `<img src="../uploads/productos/${p.imagen}" class="w-12 h-12 object-cover rounded-xl border border-gray-100 shadow-sm" alt="${p.nombre}">`
+                    : `<div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 text-[10px] font-bold border border-gray-200/50 select-none">Sin foto</div>`;
+
+                return `
+                    <tr class="hover:bg-stone-50/50 transition-colors">
+                        <td class="px-6 py-4 font-semibold text-gray-800">${p.nombre}</td>
+                        <td class="px-6 py-4 text-gray-600">$${parseFloat(p.precio).toLocaleString()}</td>
+                        <td class="px-6 py-4">${htmlImagen}</td>
+                        <td class="px-6 py-4">
+                            <button class="text-red-500 hover:text-red-700 font-semibold transition-colors">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
     } catch (error) {
         console.error("Error al cargar productos:", error);
