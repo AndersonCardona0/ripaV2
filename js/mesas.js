@@ -73,7 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                                 <div class="flex-1">
                                     <p class="text-xs uppercase tracking-wider text-stone-400 font-semibold mb-0.5">Mesero</p>
-                                    <p class="text-base text-stone-800 font-medium">${mesa.mesero_nombre ?? 'Sin asignar'}</p>
+                                    <p class="text-base text-stone-800 font-medium mb-3">${mesa.mesero_nombre ?? 'Sin asignar'}</p>
+                                    <p class="text-2xl font-semibold text-stone-800">$${Number(mesa.total_balance).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                                 </div>
 
                                 <div class="border-t border-stone-100 my-4"></div>
