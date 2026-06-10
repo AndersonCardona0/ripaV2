@@ -1,6 +1,12 @@
 <?php
 header('Content-Type: application/json');
+session_start();
 require_once '../config/conexion.php';
+
+if (!isset($_SESSION['usuario_id'])) {
+    echo json_encode(['status' => 'error', 'message' => 'No autenticado.']);
+    exit;
+}
 
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
@@ -12,7 +18,7 @@ if (!$data || !isset($data['mesa_id']) || !isset($data['items']) || empty($data[
 
 $mesa_id = intval($data['mesa_id']);
 $items = $data['items'];
-$usuario_id = 2; // ID fijo del mesero Carlos por ahora
+$usuario_id = $_SESSION['usuario_id'];
 
 try {
     $pdo->beginTransaction();

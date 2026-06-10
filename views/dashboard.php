@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear_aviso'])) {
 
 try {
     // Mantener únicamente la lógica pesada del Dashboard (Mesas)
-    $stmt_mesas_act = $pdo->query("SELECT COUNT(*) as activas FROM mesas WHERE estado != 'Available'");
+    $stmt_mesas_act = $pdo->query("SELECT COUNT(*) as activas FROM mesas WHERE estado = 'ocupada'");
     $mesas_activas = $stmt_mesas_act->fetch()['activas'];
 } catch(Exception $e) {
     $mesas_activas = 0;
@@ -133,7 +133,6 @@ try {
     </div>
 
     <script> window.currentUserRole = "<?php echo $_SESSION['rol'] ?? "invitado"; ?>"; </script>
-    <script src="../js/productos.js?v=<?php echo time(); ?>"></script>
 
     <?php include __DIR__ . '/../utilities/footer.php'; ?>
 </body>

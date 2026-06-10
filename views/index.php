@@ -197,6 +197,7 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
                 </div>
             </div>
         </div>
+        <script src="/js/mesas.js"></script>
         <?php include __DIR__ . '/../utilities/footer.php'; ?>
     </body>
 </html>

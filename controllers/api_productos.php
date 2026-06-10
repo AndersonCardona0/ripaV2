@@ -5,56 +5,110 @@ header('Content-Type: application/json');
 require_once '../config/conexion.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = $_POST['id'] ?? ''; // Capturamos el ID (estará lleno solo en modo edición)
     $nombre = $_POST['nombre'] ?? '';
     $precio = $_POST['precio'] ?? 0;
     $categoria_id = $_POST['categoria_id'] ?? 1;
-
+    
+    // Lógica para el procesamiento y subida de imágenes
     $nombre_imagen = null; 
     if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['imagen']['tmp_name'];
         $fileName = $_FILES['imagen']['name'];
         $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
         
-        // Validamos formatos permitidos
         $extensionesPermitidas = ['jpg', 'jpeg', 'png', 'webp'];
         if (in_array($fileExtension, $extensionesPermitidas)) {
-            // Generamos un nombre único para evitar duplicados en el servidor
             $nombre_imagen = 'prod_' . uniqid() . '_' . time() . '.' . $fileExtension;
             $directorioSubida = '../uploads/productos/';
             
-            // Si la carpeta no existe, la crea automáticamente con permisos
             if (!is_dir($directorioSubida)) {
                 mkdir($directorioSubida, 0755, true);
             }
             
             $rutaDestino = $directorioSubida . $nombre_imagen;
             if (!move_uploaded_file($fileTmpPath, $rutaDestino)) {
-                $nombre_imagen = null; // Si falla la subida física, guardamos null
+                $nombre_imagen = null;
             }
         }
     }
     
     try {
-        $sql = "INSERT INTO productos (nombre, precio, categoria_id, imagen) VALUES (?, ?, ?, ?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$nombre, $precio, $categoria_id, $nombre_imagen]);
-        
-        echo json_encode(['status' => 'success', 'message' => 'Producto guardado']);
+        if (!empty($id)) {
+
+            if ($nombre_imagen !== null) {
+                // Si subió una imagen nueva, se actualizan todos los campos incluyendo la imagen nueva
+                $sql = "UPDATE productos SET nombre = ?, precio = ?, categoria_id = ?, imagen = ? WHERE id = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$nombre, $precio, $categoria_id, $nombre_imagen, $id]);
+            } else {
+                // Si NO subió imagen, se actualizan los datos pero se respeta la imagen que ya existía
+                $sql = "UPDATE productos SET nombre = ?, precio = ?, categoria_id = ? WHERE id = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$nombre, $precio, $categoria_id, $id]);
+            }
+            echo json_encode(['status' => 'success', 'message' => 'Producto actualizado con éxito']);
+        } else {
+
+            $sql = "INSERT INTO productos (nombre, precio, categoria_id, imagen) VALUES (?, ?, ?, ?)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$nombre, $precio, $categoria_id, $nombre_imagen]);
+            echo json_encode(['status' => 'success', 'message' => 'Producto guardado con éxito']);
+        }
     } catch (Exception $e) {
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
     exit(); 
 }
 
-try {
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $id = intval($_GET['id'] ?? 0);
 
-    if (isset($_GET['categoria'])) {
+    if ($id <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'ID de producto inválido.']);
+        exit();
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT imagen FROM productos WHERE id = ?");
+        $stmt->execute([$id]);
+        $producto = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$producto) {
+            echo json_encode(['status' => 'error', 'message' => 'Producto no encontrado.']);
+            exit();
+        }
+
+        if (!empty($producto['imagen'])) {
+            $rutaImagen = '../uploads/productos/' . $producto['imagen'];
+            if (file_exists($rutaImagen)) {
+                unlink($rutaImagen);
+            }
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM productos WHERE id = ?");
+        $stmt->execute([$id]);
+
+        echo json_encode(['status' => 'success', 'message' => 'Producto eliminado correctamente.']);
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+    exit();
+}
+
+try {
+    if (isset($_GET['categoria']) && $_GET['categoria'] !== '' && $_GET['categoria'] !== 'undefined') {
+        
         $categoria_id = intval($_GET['categoria']);
-        $sql = "SELECT id, nombre, precio, imagen FROM productos WHERE categoria_id = :categoria_id";
+        
+        $sql = "SELECT id, nombre, precio, imagen, categoria_id FROM productos WHERE categoria_id = :categoria_id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['categoria_id' => $categoria_id]);
+        
     } else {
-        $stmt = $pdo->query("SELECT * FROM productos");
+        // Si no se envía categoría (carga inicial), traemos todos los productos del catálogo por defecto
+        $sql = "SELECT id, nombre, precio, imagen, categoria_id FROM productos";
+        $stmt = $pdo->query($sql);
     }
     
     $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);

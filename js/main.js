@@ -1,31 +1,20 @@
-// 1. SISTEMA DE COMUNICACIÓN EN TIEMPO REAL (WEBSOCKET GLOBAL)
-
 let ws;
 
 function conectarWebSocket() {
-    const serverIp = window.location.hostname; 
+    const serverIp = window.location.hostname;
     ws = new WebSocket(`ws://${serverIp}:8080`);
 
-    ws.onopen = () => {
-        console.log("🔌 Conectado exitosamente al servidor de Avisos en Tiempo Real (Global)");
-    };
+    ws.onopen = () => {};
 
     ws.onmessage = async (event) => {
-        console.log("Mensaje recibido del servidor WebSocket:", event.data);
-        
         if (event.data === 'refrescar_avisos') {
-            if (typeof refrescarListaAvisos === 'function') {
-                console.log("🔄 Refrescando lista de avisos en esta sección...");
-                await refrescarListaAvisos();
-            } else {
-                console.log("ℹAviso recibido. No hay lista que refrescar en esta pantalla, pero el sistema está al día.");
-            }
+            await refrescarListaAvisos();
         }
     };
 
     ws.onclose = () => {
         console.warn("⚠️ Servidor WebSocket desconectado. Intentando reconexión en 5 segundos...");
-        setTimeout(conectarWebSocket, 5000); 
+        setTimeout(conectarWebSocket, 5000);
     };
 
     ws.onerror = (error) => {
@@ -33,105 +22,54 @@ function conectarWebSocket() {
     };
 }
 
+async function refrescarListaAvisos() {
+    const contenedor = document.getElementById('contenedor-avisos');
+    if (!contenedor) return;
+    try {
+        const response = await fetch('../controllers/api_leer_avisos.php?t=' + new Date().getTime());
+        const result = await response.json();
 
-// 2. LÓGICA CENTRAL DEL DOM (AL CARGAR LA PÁGINA)
+        if (!response.ok) throw new Error("Error en la conexión con el servidor");
+
+        if (result.data && result.data.length > 0) {
+            contenedor.innerHTML = result.data.map(aviso => {
+                const esAdmin = window.currentUserRole === 'administrador';
+                const botonEliminar = esAdmin ? `
+                <button type="button"
+                    onclick="openConfirmModal('Eliminar Aviso', '¿Estás seguro de que deseas eliminar este aviso? Esta acción no se puede deshacer.', '?borrar=${aviso.id}', true)"
+                    class="text-red-500 hover:text-red-700 font-bold ml-4 text-xl">
+                ×
+                </button>
+                ` : '';
+                return `
+                    <div class="flex justify-between items-center border-b p-3 border-gray-100 bg-white">
+                        <div>
+                            <p class="font-bold text-gray-800">${aviso.titulo}</p>
+                            <p class="text-gray-600 text-sm">${aviso.mensaje}</p>
+                        </div>
+                        <div>${botonEliminar}</div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            contenedor.innerHTML = '<p>No hay avisos por ahora.</p>';
+        }
+    } catch (error) {
+        console.error("Fallo en el servicio de avisos:", error);
+        contenedor.innerHTML = '<p class="text-red-500">Error cargando avisos. Intenta más tarde.</p>';
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // Encendemos el WebSocket inmediatamente de forma global
     conectarWebSocket();
+    refrescarListaAvisos();
 
-    // --- Lógica específica de Mesas ---
-    const contenedor = document.getElementById('grid-mesas');
-
-    if (contenedor) { 
-        function cargarMesas() {
-            fetch('/controllers/api_mesas.php')
-                .then(res => res.json())
-                .then(res => {
-                    contenedor.innerHTML = ''; 
-                    
-                    const mesasAgrupadas = {};
-                    let disponibles = 0;
-                    let ocupadas = 0;
-
-                    res.data.forEach(mesa => {
-                        const num = mesa.numero_mesa;
-                        if (!mesasAgrupadas[num]) {
-                            mesasAgrupadas[num] = { ...mesa, total_balance: parseFloat(mesa.total_balance) || 0 };
-                        } else {
-                            mesasAgrupadas[num].total_balance += parseFloat(mesa.total_balance) || 0;
-                        }
-                    });
-                    
-                    Object.values(mesasAgrupadas).forEach(mesa => {
-                        if (mesa.estado === 'libre') disponibles++;
-                        else ocupadas++;
-
-                        let tarjetaHtml = '';
-                        
-                        if (mesa.estado === 'libre') {
-                            tarjetaHtml = `
-                                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between h-48 transition hover:shadow-md cursor-pointer" onclick="irAMesa(${mesa.numero_mesa})">
-                                    <div class="mesa-header">
-                                        <h3 class="text-xl font-bold text-gray-800">Mesa ${mesa.numero_mesa.toString().padStart(2, '0')}</h3>
-                                        <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">Disponible</span>
-                                    </div>
-                                    <div class="text-xs text-gray-400 mt-2">Mesa lista para recibir clientes.</div>
-                                    <div class="flex justify-end mt-4">
-                                        <button class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">+</button>
-                                    </div>
-                                </div>`;
-                        } else {
-                            if (res.user_role === 'administrador') {
-                                btnPagar = `
-                                    <button type="button" 
-                                            onclick="event.stopPropagation(); openConfirmModal('Cobrar Mesa', '¿Confirmar pago de la mesa T-${mesa.numero_mesa.toString().padStart(2, '0')}?', '/controllers/pagar_mesa.php?id=${mesa.numero_mesa}', false)"
-                                            class="mt-3 w-full bg-green-600 text-white font-bold p-2 rounded-xl hover:bg-green-700 transition">
-                                        Pagar Mesa
-                                    </button>`;
-                            }
-                            tarjetaHtml = `
-                                <div class="bg-white rounded-3xl p-6 shadow-sm border-2 border-secondary flex flex-col justify-between h-48 cursor-pointer" onclick="irAMesa(${mesa.numero_mesa})">
-                                    <div class="mesa-header">
-                                        <h3 class="text-xl font-bold text-gray-800">Mesa ${mesa.numero_mesa.toString().padStart(2, '0')}</h3>
-                                        <span class="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">Ocupada</span>
-                                    </div>
-                                    <div class="text-xs text-gray-400 mt-2">Consumiendo en mesa...</div>
-                                    <div class="mt-4 flex justify-between items-end">
-                                        <div>
-                                            <span class="text-xs text-gray-400 block">Balance Actual</span>
-                                            <span class="text-xl font-bold text-gray-900">$${mesa.total_balance.toFixed(2)}</span>
-                                        </div>
-                                        <div class="flex -space-x-2">
-                                            <div class="w-7 h-7 bg-amber-700 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white font-bold"></div>
-                                        </div>
-                                    </div>
-                                </div>`;
-                        }
-                        contenedor.innerHTML += tarjetaHtml;
-                    });
-
-                    const countAvail = document.getElementById('count-available');
-                    const countOcc = document.getElementById('count-occupied');
-                    if (countAvail) countAvail.innerText = disponibles;
-                    if (countOcc) countOcc.innerText = ocupadas;
-                })
-                .catch(err => console.error("Error cargando mesas:", err));
-        }
-
-        cargarMesas();
-        setInterval(cargarMesas, 4000);
-    }
-
-    // --- PROCESAMIENTO GLOBAL DE AVISOS EN SEGUNDO PLANO ---
     const formAvisoGlobal = document.getElementById('form-crear-aviso');
     const modalAvisosGlobal = document.getElementById('modal-avisos');
 
     if (formAvisoGlobal) {
         formAvisoGlobal.addEventListener('submit', async (e) => {
-            e.preventDefault(); 
-            console.log("Sistema global: Enviando aviso en segundo plano...");
+            e.preventDefault();
 
             const formData = new FormData(formAvisoGlobal);
 
@@ -146,12 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    formAvisoGlobal.reset(); 
-                    if (modalAvisosGlobal) modalAvisosGlobal.classList.add('hidden'); 
-                    
-                    if (typeof refrescarListaAvisos === 'function') {
-                        await refrescarListaAvisos();
-                    }
+                    formAvisoGlobal.reset();
+                    if (modalAvisosGlobal) modalAvisosGlobal.classList.add('hidden');
+                    await refrescarListaAvisos();
                 } else {
                     console.warn("⚠️ Error en el servidor al guardar aviso:", data.message);
                 }
@@ -162,17 +97,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// ── Modal de Confirmación Global ─────────────────────────────────────────────
+let _mcCallback = null;
 
-// 3. LOGICA DE MODALES UNIVERSALES Y NAVEGACIÓN (GLOBALES)
+window.abrirModalConfirmacion = function({ iconHtml, iconBg, titulo, descripcion, previewVisual, nombre, detalle, labelConfirmar = 'Confirmar', onConfirmar }) {
+    const iconEl = document.getElementById('mc-icon');
+    iconEl.className = `w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${iconBg}`;
+    iconEl.innerHTML = iconHtml;
+
+    document.getElementById('mc-titulo').innerText = titulo;
+    document.getElementById('mc-descripcion').innerText = descripcion;
+    document.getElementById('mc-preview-visual').innerHTML = previewVisual;
+    document.getElementById('mc-preview-nombre').innerText = nombre;
+    document.getElementById('mc-preview-detalle').innerText = detalle;
+    document.getElementById('mc-btn-confirmar').innerText = labelConfirmar;
+
+    _mcCallback = onConfirmar;
+    document.getElementById('modal-confirmacion').classList.remove('hidden');
+};
+
+window.cerrarModalConfirmacion = function() {
+    document.getElementById('modal-confirmacion').classList.add('hidden');
+    _mcCallback = null;
+};
+
+window.ejecutarConfirmacion = function() {
+    if (typeof _mcCallback === 'function') _mcCallback();
+    cerrarModalConfirmacion();
+};
 
 window.openConfirmModal = function(title, message, url, isDestructive = true) {
     const modal = document.getElementById('modal-confirm');
     document.getElementById('confirm-title').innerText = title;
     document.getElementById('confirm-msg').innerText = message;
-    
+
     const btn = document.getElementById('confirm-action-btn');
     btn.href = url;
-    
+
     if (!isDestructive) {
         btn.classList.remove('bg-red-500', 'hover:bg-red-600');
         btn.classList.add('bg-[#BC5F40]', 'hover:bg-amber-800');
@@ -180,147 +141,14 @@ window.openConfirmModal = function(title, message, url, isDestructive = true) {
         btn.classList.add('bg-red-500', 'hover:bg-red-600');
         btn.classList.remove('bg-[#BC5F40]', 'hover:bg-amber-800');
     }
-    
+
     modal.classList.remove('hidden');
-}
+};
 
 window.closeConfirmModal = function() {
     document.getElementById('modal-confirm').classList.add('hidden');
-}
+};
 
 window.irAMesa = function(id) {
     window.location.href = '/views/pedido.php?mesa=' + id;
-}
-
-// Lógica de configuración de mesas
-
-// function abrirConfiguracionSalon() {
-//     const totalMesasActuales = document.getElementById('grid-mesas').children.length;
-//     const input = document.getElementById('input-total-mesas');
-    
-//     input.value = totalMesasActuales > 0 ? totalMesasActuales : 12; // 12 por defecto si la base está limpia
-//     actualizarPrevisualizacion(parseInt(input.value));
-    
-//     document.getElementById('modal-config-salon').classList.remove('hidden');
-// }
-
-// function cambiarCantidadMesas(valor) {
-//     const input = document.getElementById('input-total-mesas');
-//     let actual = parseInt(input.value) + valor;
-//     if (actual >= 1 && actual <= 50) { 
-//         input.value = actual;
-//         actualizarPrevisualizacion(actual);
-//     }
-// }
-
-// function actualizarPrevisualizacion(total) {
-//     const grid = document.getElementById('previsualizacion-grid');
-//     grid.innerHTML = '';
-//     for (let i = 1; i <= total; i++) {
-//         const box = document.createElement('div');
-//         box.className = "w-10 h-10 rounded-xl bg-[#F5EDE3] border border-[#BC5F40]/20 flex items-center justify-center text-xs font-bold text-[#BC5F40] shadow-sm";
-//         box.innerText = i;
-//         grid.appendChild(box);
-//     }
-// }
-
-// // Envía la nueva cantidad al controlador del backend
-// function guardarConfiguracionMesas() {
-//     const nuevoTotal = document.getElementById('input-total-mesas').value;
-
-//     fetch('/controllers/api_actualizar_total_mesas.php', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ total_mesas: parseInt(nuevoTotal) })
-//     })
-//     .then(res => res.json())
-//     .then(data => {
-//         if (data.status === 'success') {
-//             document.getElementById('modal-config-salon').classList.add('hidden');
-//             if (typeof cargarMesas === 'function') {
-//                 cargarMesas(); // Recarga el mapa de mesas principal instantáneamente
-//             } else {
-//                 window.location.reload(); 
-//             }
-//         } else {
-//             alert('Error al actualizar las mesas: ' + data.message);
-//         }
-//     })
-//     .catch(err => {
-//         console.error('Error:', err);
-//         alert('Error en la comunicación con el servidor.');
-//     });
-// }
-
-window.abrirConfiguracionSalon = function() {
-    const gridMesas = document.getElementById('grid-mesas');
-    // Captura el conteo real basado en los elementos hijos inyectados por la API
-    const totalMesasActuales = gridMesas ? gridMesas.children.length : 0;
-    const input = document.getElementById('input-total-mesas');
-    
-    if (input) {
-        input.value = totalMesasActuales > 0 ? totalMesasActuales : 12; // 12 por defecto si la base de datos está vacía
-        window.actualizarPrevisualizacion(parseInt(input.value));
-    }
-    
-    const modal = document.getElementById('modal-config-salon');
-    if (modal) modal.classList.remove('hidden');
-};
-
-window.cambiarCantidadMesas = function(valor) {
-    const input = document.getElementById('input-total-mesas');
-    if (input) {
-        let actual = parseInt(input.value) + valor;
-        if (actual >= 1 && actual <= 50) { 
-            input.value = actual;
-            window.actualizarPrevisualizacion(actual);
-        }
-    }
-};
-
-window.actualizarPrevisualizacion = function(total) {
-    const gridPrevis = document.getElementById('previsualizacion-grid');
-    if (gridPrevis) {
-        gridPrevis.innerHTML = '';
-        for (let i = 1; i <= total; i++) {
-            const box = document.createElement('div');
-            box.className = "w-10 h-10 rounded-xl bg-[#F5EDE3] border border-[#BC5F40]/20 flex items-center justify-center text-xs font-bold text-[#BC5F40] shadow-sm animate-inside";
-            box.innerText = i;
-            gridPrevis.appendChild(box);
-        }
-    }
-};
-
-window.guardarConfiguracionMesas = function() {
-    const input = document.getElementById('input-total-mesas');
-    if (!input) return;
-    
-    const nuevoTotal = parseInt(input.value);
-
-    fetch('/controllers/api_actualizar_total_mesas.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ total_mesas: nuevoTotal })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            // Ocultar modal con éxito
-            const modal = document.getElementById('modal-config-salon');
-            if (modal) modal.classList.add('hidden');
-            
-            // Refresco asíncrono e inteligente sin recargar la página completa
-            if (typeof window.cargarMesas === 'function') {
-                window.cargarMesas(); 
-            } else {
-                window.location.reload(); 
-            }
-        } else {
-            alert('Error al actualizar las mesas: ' + data.message);
-        }
-    })
-    .catch(err => {
-        console.error('Error en la petición de actualización:', err);
-        alert('Error en la comunicación con el servidor.');
-    });
 };

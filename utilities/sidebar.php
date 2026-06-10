@@ -73,29 +73,22 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
         const sidebar = document.getElementById('sidebar');
         if (!sidebar) return;
         
-        // Verificar e imprimir estado inicial guardado
         const estadoGuardado = localStorage.getItem('sidebarState');
-        console.log("📦 [Sidebar] Estado inicial recuperado de la memoria:", estadoGuardado);
 
         if (estadoGuardado === 'closed') {
             sidebar.classList.remove('w-64');
             sidebar.classList.add('w-0');
         }
 
-        // Delegación de eventos limpia y con logs de diagnóstico
         document.addEventListener('click', function(event) {
             const btn = event.target.closest('#toggle-sidebar');
-            if (!btn) return; // Si el clic no fue en el botón, no hacer nada
-
-            console.log("🎯 [Sidebar] ¡Botón detectado y presionado con éxito!");
+            if (!btn) return;
 
             if (sidebar.classList.contains('w-64')) {
-                console.log("👉 Cambiando estado a: CERRADO (w-0)");
                 sidebar.classList.remove('w-64');
                 sidebar.classList.add('w-0');
                 localStorage.setItem('sidebarState', 'closed');
             } else {
-                console.log("👉 Cambiando estado a: ABIERTO (w-64)");
                 sidebar.classList.remove('w-0');
                 sidebar.classList.add('w-64');
                 localStorage.setItem('sidebarState', 'open');
