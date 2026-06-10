@@ -86,21 +86,31 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
                             </span>
                         </div>
                     </div>
-                    <?php if ($esAdmin): ?>
-                    <button onclick="abrirConfiguracionSalon()" 
-                                class="p-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-400 hover:text-primary hover:border-orange-200 transition-all flex items-center justify-center group"
+                    <div class="flex items-center gap-2">
+                        <button id="btn-toggle-grupo" onclick="toggleGrupoMode()"
+                                class="p-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-400 hover:text-[#BC5F40] hover:border-orange-200 transition-all flex items-center gap-2"
+                                title="Vista agrupada">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                            </svg>
+                            <span class="btn-grupo-label text-xs font-semibold">Agrupar</span>
+                        </button>
+                        <?php if ($esAdmin): ?>
+                        <button onclick="abrirConfiguracionSalon()"
+                                class="p-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-400 hover:text-[#BC5F40] hover:border-orange-200 transition-all flex items-center justify-center group"
                                 title="Configuración del Salón">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                         </button>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                     
 
-                <div id="grid-mesas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div id="grid-mesas">
                 </div>
             </main>
         </div>
@@ -206,10 +216,10 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
 
                 <!-- Visualizador del PIN -->
                 <div class="mb-5">
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Código de Mesero</label>
-                    <div class="flex items-center bg-stone-50 border border-stone-200 rounded-xl px-4 h-14">
-                        <span id="pin-display" class="flex-1 text-center text-2xl tracking-[0.6em] text-gray-800 font-mono select-none min-h-[1em]"></span>
-                        <button onclick="pinKey('del')" class="flex-shrink-0 p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 active:scale-95 transition-all">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 text-center">Código de Mesero</label>
+                    <div class="relative bg-stone-50 border border-stone-200 rounded-xl h-14 flex items-center justify-center">
+                        <span id="pin-display" class="text-2xl tracking-[0.6em] text-gray-800 font-mono select-none min-h-[1em] text-center"></span>
+                        <button onclick="pinKey('del')" class="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 active:scale-95 transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"/>
                             </svg>

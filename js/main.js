@@ -1,3 +1,16 @@
+// ─── Toggle Sidebar (sin flicker) ────────────────────────────────────────────
+// El estado inicial ya fue aplicado en sidebar.php antes del primer paint.
+// Aquí solo gestionamos los clics del usuario una vez que la página está lista.
+document.addEventListener('click', function (e) {
+    if (!e.target.closest('#toggle-sidebar')) return;
+
+    var html      = document.documentElement;
+    var collapsed = html.classList.toggle('sb-collapsed');
+    localStorage.setItem('sidebarState', collapsed ? 'closed' : 'open');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 let ws;
 
 function conectarWebSocket() {
@@ -149,4 +162,3 @@ window.closeConfirmModal = function() {
     document.getElementById('modal-confirm').classList.add('hidden');
 };
 
-// irAMesa está definida en mesas.js con el flujo completo de PIN
