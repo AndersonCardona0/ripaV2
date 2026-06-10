@@ -197,6 +197,58 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
                 </div>
             </div>
         </div>
+        <!-- Modal PIN Mesero -->
+        <div id="modal-pin" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-7 mx-4">
+
+                <!-- Título -->
+                <h2 class="text-xl font-bold text-center text-[#BC5F40] mb-7">Abrir Nueva Mesa</h2>
+
+                <!-- Visualizador del PIN -->
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Código de Mesero</label>
+                    <div class="flex items-center bg-stone-50 border border-stone-200 rounded-xl px-4 h-14">
+                        <span id="pin-display" class="flex-1 text-center text-2xl tracking-[0.6em] text-gray-800 font-mono select-none min-h-[1em]"></span>
+                        <button onclick="pinKey('del')" class="flex-shrink-0 p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 active:scale-95 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p id="pin-error" class="text-xs text-red-500 mt-2 transition-opacity duration-200" style="opacity:0">PIN incorrecto. Intenta de nuevo.</p>
+                </div>
+
+                <!-- Teclado numérico: 1–9 y 0 centrado -->
+                <div class="grid grid-cols-3 gap-3 mb-5">
+                    <button onclick="pinKey('1')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">1</button>
+                    <button onclick="pinKey('2')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">2</button>
+                    <button onclick="pinKey('3')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">3</button>
+                    <button onclick="pinKey('4')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">4</button>
+                    <button onclick="pinKey('5')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">5</button>
+                    <button onclick="pinKey('6')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">6</button>
+                    <button onclick="pinKey('7')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">7</button>
+                    <button onclick="pinKey('8')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">8</button>
+                    <button onclick="pinKey('9')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">9</button>
+                    <div></div>
+                    <button onclick="pinKey('0')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">0</button>
+                    <div></div>
+                </div>
+
+                <!-- Confirmar -->
+                <button id="pin-confirm-btn" onclick="pinConfirmar()"
+                        class="w-full bg-[#BC5F40] hover:bg-[#a04e35] active:scale-[0.98] text-white font-bold py-4 rounded-2xl transition-all shadow-md shadow-[#BC5F40]/20 mb-3 disabled:opacity-60">
+                    Confirmar Apertura
+                </button>
+
+                <!-- Cancelar -->
+                <div class="text-center">
+                    <button onclick="cerrarModalPin()" class="text-sm font-medium text-stone-400 hover:text-stone-700 py-2 transition-colors">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <script src="/js/mesas.js"></script>
         <?php include __DIR__ . '/../utilities/footer.php'; ?>
     </body>

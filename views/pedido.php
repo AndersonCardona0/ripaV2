@@ -29,16 +29,15 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                 <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-3">Menú Rápido</span>
                 <div id="contenedor-botones-categorias" class="space-y-2"></div>
             </div>
-            <button onclick="window.location.href='index.php'" class="w-full border border-gray-300 text-gray-600 font-semibold py-3 px-4 rounded-xl hover:bg-gray-50 transition">
-                ⬅ Volver a Mesas
-            </button>
         </div>
     </div>
 
     <div class="flex-1 flex flex-col">
         <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0">
             <h1 class="text-xl font-bold text-gray-900">Mesa <?php echo str_pad($mesa_activa, 2, '0', STR_PAD_LEFT); ?> <span class="text-sm font-normal text-gray-400 ml-2">Tomando Pedido...</span></h1>
-            <input type="text" placeholder="Search products..." class="bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none w-64">
+            <button onclick="window.location.href='index.php'" class="border border-gray-300 text-gray-600 font-semibold py-2 px-4 rounded-xl hover:bg-gray-50 transition text-sm">
+                ⬅ Volver a Mesas
+            </button>
         </header>
 
         <main class="flex-1 p-6 overflow-y-auto">
@@ -50,7 +49,7 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
         <div class="flex justify-between items-center mb-6 flex-shrink-0">
             <h2 class="text-xl font-bold text-gray-800">Orden</h2>
             <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-lg">
-                T-<?php echo str_pad($mesa_activa, 2, "0", STR_PAD_LEFT); ?>
+                Mesa-<?php echo str_pad($mesa_activa, 2, "0", STR_PAD_LEFT); ?>
             </span>
         </div>
 

@@ -22,15 +22,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 Object.values(mesasAgrupadas).forEach(mesa => {
-                    if (mesa.estado === 'libre') disponibles++;
+                    const esDisponible = mesa.estado === 'disponible' || mesa.estado === 'libre';
+                    if (esDisponible) disponibles++;
                     else ocupadas++;
 
                     let tarjetaHtml = '';
 
-                    if (mesa.estado === 'libre') {
+                    if (esDisponible) {
                         tarjetaHtml = `
                             <div class="bg-white rounded-3xl p-6 border border-stone-100 shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow"
-                                 onclick="irAMesa(${mesa.numero_mesa})">
+                                 onclick="irAMesa(${mesa.id}, ${mesa.numero_mesa}, true)">
 
                                 <div class="flex justify-between items-start mb-5">
                                     <span class="text-5xl font-thin text-stone-300 leading-none tracking-tight">
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         tarjetaHtml = `
                             <div class="bg-white rounded-3xl p-6 border border-stone-100 shadow-sm flex flex-col cursor-pointer hover:shadow-md transition-shadow"
-                                 onclick="irAMesa(${mesa.numero_mesa})">
+                                 onclick="irAMesa(${mesa.id}, ${mesa.numero_mesa}, true)">
 
                                 <div class="flex justify-between items-start mb-5">
                                     <span class="text-5xl font-thin text-stone-700 leading-none tracking-tight">
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                                 <div class="flex-1">
                                     <p class="text-xs uppercase tracking-wider text-stone-400 font-semibold mb-0.5">Mesero</p>
-                                    <p class="text-base text-stone-800 font-medium mb-3">${mesa.mesero_nombre ?? 'Sin asignar'}</p>
+                                    <p class="text-base text-stone-800 font-medium mb-3">${mesa.mesero_nombre || 'Sin asignar'}</p>
                                     <p class="text-2xl font-semibold text-stone-800">$${Number(mesa.total_balance).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                                 </div>
 
@@ -148,6 +149,147 @@ window.actualizarPrevisualizacion = function(total) {
         }
     }
 };
+
+// ── Flujo de apertura de mesa con PIN ────────────────────────────────────────
+
+const pinState = {
+    mesaId:    null,
+    numeroMesa: null,
+    pin:       '',
+    maxLength: 6,
+    cargando:  false,
+    bloqueado: false
+};
+
+window.irAMesa = function (mesaId, numeroMesa) {
+    abrirModalPin(mesaId, numeroMesa);
+};
+
+function abrirModalPin(mesaId, numeroMesa) {
+    pinState.mesaId    = mesaId;
+    pinState.numeroMesa = numeroMesa;
+    pinState.pin       = '';
+    pinState.cargando  = false;
+    pinState.bloqueado = false;
+
+    actualizarDisplayPin();
+    ocultarErrorPin();
+
+    const modal = document.getElementById('modal-pin');
+    if (modal) modal.classList.remove('hidden');
+}
+
+window.cerrarModalPin = function () {
+    const modal = document.getElementById('modal-pin');
+    if (modal) modal.classList.add('hidden');
+    pinState.mesaId    = null;
+    pinState.numeroMesa = null;
+    pinState.pin       = '';
+    pinState.bloqueado = false;
+};
+
+window.pinKey = function (key) {
+    if (pinState.cargando || pinState.bloqueado) return;
+    ocultarErrorPin();
+
+    if (key === 'del') {
+        pinState.pin = pinState.pin.slice(0, -1);
+    } else if (pinState.pin.length < pinState.maxLength) {
+        pinState.pin += key;
+    }
+
+    actualizarDisplayPin();
+};
+
+function actualizarDisplayPin() {
+    const display = document.getElementById('pin-display');
+    if (display) {
+        display.textContent = '*'.repeat(pinState.pin.length);
+        display.style.color = '';
+    }
+}
+
+function ocultarErrorPin() {
+    const err = document.getElementById('pin-error');
+    if (err) err.style.opacity = '0';
+}
+
+function mostrarErrorPin(msg) {
+    pinState.bloqueado = true;
+
+    const err = document.getElementById('pin-error');
+    if (err) {
+        err.textContent   = msg || 'PIN incorrecto. Intenta de nuevo.';
+        err.style.opacity = '1';
+    }
+
+    const display = document.getElementById('pin-display');
+    if (display) display.style.color = '#ef4444';
+
+    setTimeout(() => {
+        pinState.pin       = '';
+        pinState.bloqueado = false;
+        actualizarDisplayPin();
+    }, 700);
+}
+
+window.pinConfirmar = async function () {
+    if (pinState.pin.length < 4 || pinState.cargando || pinState.bloqueado) return;
+
+    pinState.cargando  = true;
+    const numeroMesa   = pinState.numeroMesa;
+    const confirmBtn   = document.getElementById('pin-confirm-btn');
+
+    if (confirmBtn) {
+        confirmBtn.disabled     = true;
+        confirmBtn.textContent  = 'Verificando...';
+    }
+
+    try {
+        const res  = await fetch('/controllers/api_mesas.php', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ accion: 'abrir_mesa', mesa_id: pinState.mesaId, pin: pinState.pin })
+        });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+            cerrarModalPin();
+            window.location.href = `pedido.php?mesa=${numeroMesa}`;
+        } else if (data.status === 'pin_incorrecto') {
+            mostrarErrorPin('PIN incorrecto. Intenta de nuevo.');
+        } else {
+            mostrarErrorPin(data.message || 'Error inesperado.');
+        }
+    } catch (e) {
+        mostrarErrorPin('Error de conexión. Intenta de nuevo.');
+    } finally {
+        pinState.cargando = false;
+        if (confirmBtn) {
+            confirmBtn.disabled    = false;
+            confirmBtn.textContent = 'Confirmar Apertura';
+        }
+    }
+};
+
+// Soporte para teclado físico cuando el modal está visible
+document.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('modal-pin');
+    if (!modal || modal.classList.contains('hidden')) return;
+
+    if (e.key >= '0' && e.key <= '9') {
+        pinKey(e.key);
+    } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        pinKey('del');
+    } else if (e.key === 'Enter') {
+        pinConfirmar();
+    } else if (e.key === 'Escape') {
+        cerrarModalPin();
+    }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 window.guardarConfiguracionMesas = function() {
     const input = document.getElementById('input-total-mesas');

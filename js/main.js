@@ -149,6 +149,4 @@ window.closeConfirmModal = function() {
     document.getElementById('modal-confirm').classList.add('hidden');
 };
 
-window.irAMesa = function(id) {
-    window.location.href = '/views/pedido.php?mesa=' + id;
-};
+// irAMesa está definida en mesas.js con el flujo completo de PIN

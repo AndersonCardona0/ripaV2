@@ -61,42 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit(); 
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    $id = intval($_GET['id'] ?? 0);
-
-    if ($id <= 0) {
-        echo json_encode(['status' => 'error', 'message' => 'ID de producto inválido.']);
-        exit();
-    }
-
-    try {
-        $stmt = $pdo->prepare("SELECT imagen FROM productos WHERE id = ?");
-        $stmt->execute([$id]);
-        $producto = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$producto) {
-            echo json_encode(['status' => 'error', 'message' => 'Producto no encontrado.']);
-            exit();
-        }
-
-        if (!empty($producto['imagen'])) {
-            $rutaImagen = '../uploads/productos/' . $producto['imagen'];
-            if (file_exists($rutaImagen)) {
-                unlink($rutaImagen);
-            }
-        }
-
-        $stmt = $pdo->prepare("DELETE FROM productos WHERE id = ?");
-        $stmt->execute([$id]);
-
-        echo json_encode(['status' => 'success', 'message' => 'Producto eliminado correctamente.']);
-    } catch (Exception $e) {
-        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-    }
-    exit();
-}
-
 try {
+    // Blindamos el isset para verificar que no sea una cadena vacía ni el texto 'undefined' de JS
     if (isset($_GET['categoria']) && $_GET['categoria'] !== '' && $_GET['categoria'] !== 'undefined') {
         
         $categoria_id = intval($_GET['categoria']);
