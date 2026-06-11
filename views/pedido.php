@@ -29,20 +29,19 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                 <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-3">Menú Rápido</span>
                 <div id="contenedor-botones-categorias" class="space-y-2"></div>
             </div>
-            <button onclick="window.location.href='index.php'" class="w-full border border-gray-300 text-gray-600 font-semibold py-3 px-4 rounded-xl hover:bg-gray-50 transition">
-                ⬅ Volver a Mesas
-            </button>
         </div>
     </div>
 
     <div class="flex-1 flex flex-col">
         <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0">
             <h1 class="text-xl font-bold text-gray-900">Mesa <?php echo str_pad($mesa_activa, 2, '0', STR_PAD_LEFT); ?> <span class="text-sm font-normal text-gray-400 ml-2">Tomando Pedido...</span></h1>
-            <input type="text" placeholder="Search products..." class="bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none w-64">
+            <button onclick="window.location.href='index.php'" class="border border-gray-300 text-gray-600 font-semibold py-2 px-4 rounded-xl hover:bg-gray-50 transition text-sm">
+                ⬅ Volver a Mesas
+            </button>
         </header>
 
-        <main class="flex-1 p-8 overflow-y-auto">
-            <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 overflow-y-auto overflow-x-hidden w-full max-w-full p-1"></div>
+        <main class="flex-1 p-6 overflow-y-auto">
+            <div id="grid-productos" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 overflow-y-auto overflow-x-hidden w-full max-w-full p-1"></div>
         </main>
     </div>
 
@@ -50,7 +49,7 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
         <div class="flex justify-between items-center mb-6 flex-shrink-0">
             <h2 class="text-xl font-bold text-gray-800">Orden</h2>
             <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-lg">
-                T-<?php echo str_pad($mesa_activa, 2, "0", STR_PAD_LEFT); ?>
+                Mesa-<?php echo str_pad($mesa_activa, 2, "0", STR_PAD_LEFT); ?>
             </span>
         </div>
 
@@ -74,9 +73,9 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
             <div class="flex justify-between items-center mb-6">
                 <span class="text-base font-bold text-gray-800">Total</span>
                 <span id="txt-total" class="text-2xl font-black text-gray-900">$0.00</span>
-            </div>            
+            </div>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador'): ?>
-            <button type="button" onclick="openPaymentModal()" class="w-full mb-3 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center transition shadow-lg shadow-green-700/20">
+            <button type="button" onclick="abrirConfirmacionPago()" class="w-full mb-3 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center transition shadow-lg shadow-green-700/20">
                 <span class="ml-2">Pagar Mesa</span>
             </button>
             <?php endif; ?>
@@ -107,7 +106,7 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
                     <button class="flex-1 py-3 bg-white border-2 border-[#BC5F40] text-[#BC5F40] rounded-xl font-bold">Tarjeta</button>
                     <button class="flex-1 py-3 bg-white border border-gray-200 rounded-xl font-medium">Digital</button>
                 </div>
-                
+
                 <input type="text" placeholder="Ej. Juan Pérez" class="w-full p-3 rounded-xl border border-gray-200 mb-4">
                 <input type="text" placeholder="0000 0000 0000 0000" class="w-full p-3 rounded-xl border border-gray-200 mb-4">
                 <div class="grid grid-cols-2 gap-4 mb-6">
@@ -123,202 +122,7 @@ $mesa_activa = isset($_GET['mesa']) ? intval($_GET['mesa']) : 1;
         </div>
     </div>
 
-    <script>
-        const mesaActiva = <?php echo $mesa_activa; ?>;
-        let carrito = [];
-        let categoriaSeleccionadaId = null;
-
-        function cargarBotonesCategorias() {
-            fetch('../controllers/api_categorias.php')
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === 'success' && res.data.length > 0) {
-                        const contenedor = document.getElementById('contenedor-botones-categorias');
-                        contenedor.innerHTML = '';
-
-                        res.data.forEach((cat, index) => {
-                            const esActiva = index === 0;
-                            if (esActiva && !categoriaSeleccionadaId) {
-                                categoriaSeleccionadaId = cat.id;
-                            }
-
-                            const clasesBoton = esActiva 
-                                ? 'category-btn w-full bg-amber-100 text-amber-800 font-medium py-2.5 px-4 rounded-xl flex items-center text-left leading-tight transition-all dynamic-active'
-                                : 'category-btn w-full text-gray-500 hover:bg-gray-50 hover:text-gray-800 font-medium py-2.5 px-4 rounded-xl flex items-center text-left leading-tight transition-all';
-
-                            contenedor.innerHTML += `
-                                <button onclick="cambiarCategoria(${cat.id}, this)" class="${clasesBoton}">
-                                    ${cat.nombre}
-                                </button>
-                            `;
-                        });
-
-                        if (categoriaSeleccionadaId) {
-                            cargarProductos(categoriaSeleccionadaId);
-                        }
-                    }
-                })
-                .catch(err => console.error("Error al cargar categorías:", err));
-        }
-
-        function cargarProductos(categoriaId) {
-            fetch(`../controllers/api_productos.php?categoria=${categoriaId}`)
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === 'success') {
-                        const grid = document.getElementById('grid-productos');
-                        grid.innerHTML = '';
-                        
-                        res.data.forEach(prod => {
-                            grid.innerHTML += `
-                                <div onclick="agregarAlCarrito(${prod.id}, '${prod.nombre}', ${prod.precio})" 
-                                    class="w-full bg-white border border-stone-200 rounded-2xl p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition h-40 box-border">
-                                    <div class="w-full flex flex-col gap-y-1">
-                                        <h3 class="font-bold text-gray-800 text-sm sm:text-base leading-snug line-clamp-2" title="${prod.nombre}">
-                                            ${prod.nombre}
-                                        </h3>
-                                        <span class="font-extrabold text-amber-700 text-sm sm:text-base mt-1">
-                                            $${parseFloat(prod.precio).toFixed(2)}
-                                        </span>
-                                    </div>
-                                    <div class="flex items-center justify-between text-xs text-gray-400 border-t border-stone-100 pt-2 w-full mt-auto">
-                                        <span>Ver detalle</span>
-                                        <span class="text-amber-500 font-bold bg-stone-50 px-2 py-1 rounded-lg border border-stone-100">🛒+</span>
-                                    </div>
-                                </div>`;
-                        });
-                    }
-                });
-        }
-
-        function cambiarCategoria(id, boton) {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('bg-amber-100', 'text-amber-800', 'hover:text-gray-800');
-                btn.classList.add('text-gray-500');
-            });
-            boton.classList.remove('text-gray-500');
-            boton.classList.add('bg-amber-100', 'text-amber-800');
-            cargarProductos(id);
-        }
-
-        function agregarAlCarrito(id, nombre, precio) {
-            const existe = carrito.find(item => item.id === id);
-            if (existe) {
-                existe.cantidad++;
-            } else {
-                carrito.push({ id, nombre, precio, cantidad: 1 });
-            }
-            actualizarInterfazCarrito();
-        }
-
-        function actualizarInterfazCarrito() {
-            const contenedor = document.getElementById('carrito-items');
-            const vacio = document.getElementById('carrito-vacio');
-            
-            if (carrito.length === 0) {
-                vacio.style.display = 'block';
-                document.querySelectorAll('#txt-subtotal, #txt-impuesto, #txt-total').forEach(el => el.innerText = '$0.00');
-                document.querySelectorAll('.cart-item-row').forEach(el => el.remove());
-                return;
-            }
-            
-            vacio.style.display = 'none';
-            document.querySelectorAll('.cart-item-row').forEach(el => el.remove());
-
-            let subtotal = 0;
-            carrito.forEach(item => {
-                const itemSubtotal = item.precio * item.cantidad;
-                subtotal += itemSubtotal;
-
-                const row = document.createElement('div');
-                row.className = 'cart-item-row flex justify-between items-center bg-stone-50 p-3 rounded-xl text-sm border border-stone-100 mb-2';
-                row.innerHTML = `
-                    <div class="flex-1 pr-1">
-                        <span class="font-bold text-gray-800 block line-clamp-1">${item.nombre}</span>
-                        <span class="text-xs text-gray-400">$${parseFloat(item.precio).toFixed(2)} x ${item.cantidad}</span>
-                    </div>
-                    <div class="flex items-center space-x-2 bg-white border border-gray-200 rounded-lg p-1 mr-2">
-                        <button onclick="modificarCantidad(${item.id}, -1)" class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-stone-100 rounded-md font-bold text-sm transition">-</button>
-                        <span class="font-semibold text-gray-800 px-1 min-w-[12px] text-center">${item.cantidad}</span>
-                        <button onclick="modificarCantidad(${item.id}, 1)" class="w-6 h-6 flex items-center justify-center text-primary hover:bg-stone-100 rounded-md font-bold text-sm transition">+</button>
-                    </div>
-                    <div class="flex items-center space-x-3 min-w-[90px] justify-end">
-                        <span class="font-bold text-gray-700">$${itemSubtotal.toFixed(2)}</span>
-                        <button onclick="eliminarProducto(${item.id})" class="text-red-400 hover:text-red-600 transition font-medium text-xs p-1">❌</button>
-                    </div>`;
-                contenedor.appendChild(row);
-            });
-
-            const impuesto = subtotal * 0.08;
-            const total = subtotal + impuesto;
-
-            document.getElementById('txt-subtotal').innerText = `$${subtotal.toFixed(2)}`;
-            document.getElementById('txt-impuesto').innerText = `$${impuesto.toFixed(2)}`;
-            document.getElementById('txt-total').innerText = `$${total.toFixed(2)}`;
-        }
-
-        function modificarCantidad(id, cambio) {
-            const item = carrito.find(p => parseInt(p.id) === parseInt(id));
-            if (item) {
-                item.cantidad += cambio;
-                if (item.cantidad <= 0) {
-                    eliminarProducto(id);
-                    return;
-                }
-                actualizarInterfazCarrito();
-            }
-        }
-
-        function eliminarProducto(id) {
-            carrito = carrito.filter(p => parseInt(p.id) !== parseInt(id));
-            actualizarInterfazCarrito();
-        }
-
-        function enviarACocina() {
-            if (carrito.length === 0) {
-                alert('Por favor selecciona al menos un producto antes de enviar.');
-                return;
-            }
-
-            fetch('../controllers/guardar_pedido.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mesa_id: mesaActiva, items: carrito })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.status === 'success') {
-                    window.location.href = 'index.php'; 
-                } else {
-                    alert('Error al guardar: ' + res.message);
-                }
-            })
-            .catch(err => {
-                console.error('Error en la petición:', err);
-                alert('Ocurrió un error de red.');
-            });
-        }
-
-        function verificarPedidoExistente() {
-            fetch(`../controllers/api_obtener_pedido_mesa.php?mesa=${mesaActiva}`)
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === 'success' && res.data.length > 0) {
-                        carrito = res.data.map(item => ({
-                            id: parseInt(item.id),
-                            nombre: item.nombre,
-                            precio: parseFloat(item.precio),
-                            cantidad: parseInt(item.cantidad)
-                        }));
-                        actualizarInterfazCarrito();
-                    }
-                })
-                .catch(err => console.error("Error cargando pedido previo:", err));
-        }
-
-        cargarBotonesCategorias();
-        verificarPedidoExistente();
-    </script>
+    <script src="../js/pedido.js"></script>
     <script src="../js/pedidos.js"></script>
     <?php include __DIR__ . '/../Utilities/footer.php'; ?>
 </body>

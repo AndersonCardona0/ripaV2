@@ -47,29 +47,7 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
         <?php include __DIR__ . '/../Utilities/sidebar.php'; ?>
         
         <div class="flex-1 flex flex-col">
-            <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10">
-                <button id="toggle-sidebar" class="mr-4 p-3 text-gray-500 hover:bg-gray-100 rounded-lg flex items-center justify-center transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-
-                <nav class="flex items-center space-x-6 font-medium text-gray-500 h-full">
-                </nav>
-
-                <nav class="flex items-center space-x-6 font-medium text-gray-500 h-full">
-                    <a href="dashboard.php" class="hover:text-primary transition py-2">Dashboard</a>
-                    
-                    <a href="index.php" class="text-primary border-b-2 border-primary h-full flex items-center transition">
-                        Mesas
-                    </a>
-                    
-                </nav>
-                
-                <div class="flex items-center space-x-4">
-                    <input type="text" placeholder="Buscar Tabla..." class="bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none w-64">
-                </div>
-            </header>
+            <?php include __DIR__ . '/../utilities/header.php'; ?>
 
             <main class="flex-1 p-8 overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
@@ -86,20 +64,31 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
                             </span>
                         </div>
                     </div>
-                </div>
-
-                <?php if ($esAdmin): ?>
-                    <button onclick="abrirConfiguracionSalon()" 
-                                class="p-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-400 hover:text-primary hover:border-orange-200 transition-all flex items-center justify-center group"
+                    <div class="flex items-center gap-2">
+                        <button id="btn-toggle-grupo" onclick="toggleGrupoMode()"
+                                class="p-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-400 hover:text-[#BC5F40] hover:border-orange-200 transition-all flex items-center gap-2"
+                                title="Vista agrupada">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                            </svg>
+                            <span class="btn-grupo-label text-xs font-semibold">Agrupar</span>
+                        </button>
+                        <?php if ($esAdmin): ?>
+                        <button onclick="abrirConfiguracionSalon()"
+                                class="p-2.5 bg-white border border-gray-200 rounded-xl shadow-sm text-gray-400 hover:text-[#BC5F40] hover:border-orange-200 transition-all flex items-center justify-center group"
                                 title="Configuración del Salón">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                         </button>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
 
-                <div id="grid-mesas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    
+
+                <div id="grid-mesas">
                 </div>
             </main>
         </div>
@@ -109,7 +98,6 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
             <div class="bg-[#FBF9F6] rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-gray-100">
                 <div class="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-100">
                     <div class="flex items-center space-x-2 text-gray-800">
-                        <span class="text-xl">🏪</span>
                         <h2 class="text-base font-bold text-gray-900">Configuración del Salón</h2>
                     </div>
                     <button onclick="document.getElementById('modal-config-salon').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 transition">
@@ -197,6 +185,59 @@ $esAdmin = (isset($_SESSION['rol']) && $_SESSION['rol'] === 'administrador');
                 </div>
             </div>
         </div>
+        <!-- Modal PIN Mesero -->
+        <div id="modal-pin" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-7 mx-4">
+
+                <!-- Título -->
+                <h2 class="text-xl font-bold text-center text-[#BC5F40] mb-7">Abrir Nueva Mesa</h2>
+
+                <!-- Visualizador del PIN -->
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 text-center">Código de Mesero</label>
+                    <div class="relative bg-stone-50 border border-stone-200 rounded-xl h-14 flex items-center justify-center">
+                        <span id="pin-display" class="text-2xl tracking-[0.6em] text-gray-800 font-mono select-none min-h-[1em] text-center"></span>
+                        <button onclick="pinKey('del')" class="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 active:scale-95 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p id="pin-error" class="text-xs text-red-500 mt-2 transition-opacity duration-200" style="opacity:0">PIN incorrecto. Intenta de nuevo.</p>
+                </div>
+
+                <!-- Teclado numérico: 1–9 y 0 centrado -->
+                <div class="grid grid-cols-3 gap-3 mb-5">
+                    <button onclick="pinKey('1')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">1</button>
+                    <button onclick="pinKey('2')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">2</button>
+                    <button onclick="pinKey('3')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">3</button>
+                    <button onclick="pinKey('4')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">4</button>
+                    <button onclick="pinKey('5')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">5</button>
+                    <button onclick="pinKey('6')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">6</button>
+                    <button onclick="pinKey('7')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">7</button>
+                    <button onclick="pinKey('8')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">8</button>
+                    <button onclick="pinKey('9')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">9</button>
+                    <div></div>
+                    <button onclick="pinKey('0')" class="h-14 rounded-xl bg-white border border-stone-200 text-gray-900 font-semibold text-lg hover:bg-stone-50 active:scale-95 active:bg-stone-100 transition-all">0</button>
+                    <div></div>
+                </div>
+
+                <!-- Confirmar -->
+                <button id="pin-confirm-btn" onclick="pinConfirmar()"
+                        class="w-full bg-[#BC5F40] hover:bg-[#a04e35] active:scale-[0.98] text-white font-bold py-4 rounded-2xl transition-all shadow-md shadow-[#BC5F40]/20 mb-3 disabled:opacity-60">
+                    Confirmar Apertura
+                </button>
+
+                <!-- Cancelar -->
+                <div class="text-center">
+                    <button onclick="cerrarModalPin()" class="text-sm font-medium text-stone-400 hover:text-stone-700 py-2 transition-colors">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="/js/mesas.js"></script>
         <?php include __DIR__ . '/../utilities/footer.php'; ?>
     </body>
 </html>
