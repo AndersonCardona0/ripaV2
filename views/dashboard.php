@@ -67,21 +67,7 @@ try {
     <?php include __DIR__ . '/../utilities/sidebar.php'; ?>
 
     <div class="flex-1 flex flex-col overflow-y-auto">
-        <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0">
-            <button id="toggle-sidebar" class="mr-4 p-2 text-gray-500 hover:bg-gray-100 rounded-lg flex items-center justify-center transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-
-            <nav class="flex items-center space-x-6 font-medium text-gray-500 h-full">
-                <a href="dashboard.php" class="text-primary border-b-2 border-primary h-full flex items-center transition">Dashboard</a>
-                <a href="index.php" class="hover:text-primary transition py-2">Mesas</a>
-            </nav>
-            <div class="flex items-center space-x-4">
-                <input type="text" placeholder="Buscar Tabla..." class="bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none w-64">
-            </div>
-        </header>
+        <?php include __DIR__ . '/../utilities/header.php'; ?>
 
         <main class="p-8 space-y-6">
             <div>
